@@ -22,6 +22,18 @@ import MCPPanel from '~/components/SidePanel/MCP/MCPPanel';
 import { useGetStartupConfig } from '~/data-provider';
 import { useHasAccess } from '~/hooks';
 
+// Declare window.env type
+declare global {
+  interface Window {
+    env: {
+      NOCO_URL?: string;
+      N8N_URL?: string;
+      CAL_URL?: string;
+      GHOST_URL?: string;
+    };
+  }
+}
+
 export default function useSideNavLinks({
   hidePanel,
   keyProvided,
@@ -175,53 +187,62 @@ export default function useSideNavLinks({
       id: 'hide-panel',
     });
 
-    links.push(
-      {
-        title: 'com_sidepanel_noco_db',
-        label: '',
-        icon: MCPIcon,
-        onClick: ()=>{
-          window.open(import.meta.env.VITE_NOCO_URL, '_blank');
+    // Add external links only if URLs are provided
+    if (window.env?.NOCO_URL) {
+      links.push(
+        {
+          title: 'com_sidepanel_noco_db',
+          label: '',
+          icon: MCPIcon,
+          onClick: ()=>{
+            window.open(window.env.NOCO_URL, '_blank');
+          },
+          id: 'noco-db',
         },
-        id: 'noco-db',
-      },
-    );
+      );
+    }
 
-    links.push(
-      {
-        title: 'com_sidepanel_n8n',
-        label: '',
-        icon: MCPIcon,
-        onClick: ()=>{
-          window.open(import.meta.env.VITE_N8N_URL, '_blank');
+    if (window.env?.N8N_URL) {
+      links.push(
+        {
+          title: 'com_sidepanel_n8n',
+          label: '',
+          icon: MCPIcon,
+          onClick: ()=>{
+            window.open(window.env.N8N_URL, '_blank');
+          },
+          id: 'n8n',
         },
-        id: 'n8n',
-      },
-    );
+      );
+    }
 
-    links.push(
-      {
-        title: 'com_sidepanel_ghost',
-        label: '',
-        icon: MCPIcon,
-        onClick: ()=>{
-          window.open(import.meta.env.VITE_GHOST_URL, '_blank');
+    if (window.env?.GHOST_URL) {
+      links.push(
+        {
+          title: 'com_sidepanel_ghost',
+          label: '',
+          icon: MCPIcon,
+          onClick: ()=>{
+            window.open(window.env.GHOST_URL, '_blank');
+          },
+          id: 'ghost',
         },
-        id: 'ghost',
-      },
-    );
-    links.push(
-      {
-        title: 'com_sidepanel_cal',
-        label: '',
-        icon: MCPIcon,
-        onClick: ()=>{
-          window.open(import.meta.env.VITE_CAL_URL, '_blank');
+      );
+    }
+    
+    if (window.env?.CAL_URL) {
+      links.push(
+        {
+          title: 'com_sidepanel_cal',
+          label: '',
+          icon: MCPIcon,
+          onClick: ()=>{
+            window.open(window.env.CAL_URL, '_blank');
+          },
+          id: 'cal',
         },
-        id: 'cal',
-      },
-    );
-
+      );
+    }
 
     return links;
   }, [

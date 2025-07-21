@@ -35,11 +35,23 @@ RUN \
     npm prune --production; \
     npm cache clean --force
 
+# Copy the env template file and entrypoint
+COPY --chown=node:node client/public/env.template.js /app/client/dist/env.template.js
+COPY --chown=node:node entrypoint.sh /entrypoint.sh
+
+# Switch to root to set executable permissions, then switch back
+USER root
+RUN chmod +x /entrypoint.sh
+USER node
+
 RUN mkdir -p /app/client/public/images /app/api/logs
 
 # Node API setup
 EXPOSE 3080
 ENV HOST=0.0.0.0
+
+# Use entrypoint to inject env vars at runtime
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["npm", "run", "backend"]
 
 # Optional: for client with nginx routing
