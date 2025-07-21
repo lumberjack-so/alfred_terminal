@@ -52,15 +52,15 @@ export default function Footer({ className }: { className?: string }) {
     }
   }, [config?.analyticsGtmId]);
 
-  const mainContentRender = mainContentParts.map((text, index) => (
-    <React.Fragment key={`main-content-part-${index}`}>
-      <div className="absolute bottom-0 left-0 right-0">
-        <p>This is the navbar </p>
-      </div>
-    </React.Fragment>
-  ));
+  // const mainContentRender = mainContentParts.map((text, index) => (
+  //   <React.Fragment key={`main-content-part-${index}`}>
+  //     <div className="absolute bottom-0 left-0 right-0">
+  //       <p>This is the footer </p>
+  //     </div>
+  //   </React.Fragment>
+  // ));
 
-  const footerElements = [...mainContentRender, privacyPolicyRender, termsOfServiceRender].filter(
+  const footerElements = [ privacyPolicyRender, termsOfServiceRender].filter(
     Boolean,
   );
 

@@ -80,10 +80,10 @@ const SidePanel = ({
     panelRef.current?.collapse();
   }, [panelRef, setMinSize, setIsCollapsed, setFullCollapse, setCollapsedSize]);
 
-  console.log(process.env.NOCO_URL);
-  console.log(process.env.N8N_URL);
-  console.log(process.env.GHOST_URL);
-  console.log(process.env.CAL_URL);
+  console.log(import.meta.env.VITE_NOCO_URL);
+  console.log(import.meta.env.VITE_N8N_URL);
+  console.log(import.meta.env.VITE_GHOST_URL);
+  console.log(import.meta.env.VITE_CAL_URL);
 
   const Links = useSideNavLinks({
     endpoint,
