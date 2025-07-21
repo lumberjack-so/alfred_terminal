@@ -54,27 +54,9 @@ export default function Footer({ className }: { className?: string }) {
 
   const mainContentRender = mainContentParts.map((text, index) => (
     <React.Fragment key={`main-content-part-${index}`}>
-      <ReactMarkdown
-        components={{
-          a: ({ node: _n, href, children, ...otherProps }) => {
-            return (
-              <a
-                className="text-text-secondary underline"
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                {...otherProps}
-              >
-                {children}
-              </a>
-            );
-          },
-
-          p: ({ node: _n, ...props }) => <span {...props} />,
-        }}
-      >
-        {text.trim()}
-      </ReactMarkdown>
+      <div className="absolute bottom-0 left-0 right-0">
+        <p>This is the navbar </p>
+      </div>
     </React.Fragment>
   ));
 

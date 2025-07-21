@@ -170,10 +170,58 @@ export default function useSideNavLinks({
     links.push({
       title: 'com_sidepanel_hide_panel',
       label: '',
-      icon: ArrowRightToLine,
+      icon: MCPIcon,
       onClick: hidePanel,
       id: 'hide-panel',
     });
+
+    links.push(
+      {
+        title: 'com_sidepanel_noco_db',
+        label: '',
+        icon: MCPIcon,
+        onClick: ()=>{
+          window.open(process.env.NOCO_URL, '_blank');
+        },
+        id: 'noco-db',
+      },
+    );
+
+    links.push(
+      {
+        title: 'com_sidepanel_n8n',
+        label: '',
+        icon: MCPIcon,
+        onClick: ()=>{
+          window.open(process.env.N8N_URL, '_blank');
+        },
+        id: 'n8n',
+      },
+    );
+
+    links.push(
+      {
+        title: 'com_sidepanel_ghost',
+        label: '',
+        icon: MCPIcon,
+        onClick: ()=>{
+          window.open(process.env.GHOST_URL, '_blank');
+        },
+        id: 'ghost',
+      },
+    );
+    links.push(
+      {
+        title: 'com_sidepanel_cal',
+        label: '',
+        icon: MCPIcon,
+        onClick: ()=>{
+          window.open(process.env.CAL_URL, '_blank');
+        },
+        id: 'cal',
+      },
+    );
+
 
     return links;
   }, [
