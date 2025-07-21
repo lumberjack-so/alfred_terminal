@@ -47,9 +47,26 @@
         }
       `;
       document.head.appendChild(loadingContainerStyle);
+
+      // Load runtime environment variables dynamically
+      const loadEnvScript = () => {
+        const script = document.createElement('script');
+        script.src = '/env.js';
+        script.onerror = () => {
+          console.warn('Runtime environment variables not available (env.js not found)');
+          // Set empty env object as fallback
+          window.env = {};
+        };
+        document.head.appendChild(script);
+      };
+      
+      // Load env.js when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadEnvScript);
+      } else {
+        loadEnvScript();
+      }
     </script>
-    <!-- Load runtime environment variables -->
-    <script src="/env.js"></script>
     <script defer type="module" src="/src/main.jsx"></script>
   </head>
   <body>
