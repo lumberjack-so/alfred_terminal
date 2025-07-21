@@ -195,7 +195,7 @@ export default function useSideNavLinks({
           label: '',
           icon: MCPIcon,
           onClick: ()=>{
-            window.open(window.env.NOCO_URL, '_blank');
+            window.open( 'https://' + window.env.NOCO_URL, '_blank');
           },
           id: 'noco-db',
         },
@@ -209,7 +209,7 @@ export default function useSideNavLinks({
           label: '',
           icon: MCPIcon,
           onClick: ()=>{
-            window.open(window.env.N8N_URL, '_blank');
+            window.open('https://' + window.env.N8N_URL, '_blank');
           },
           id: 'n8n',
         },
@@ -223,7 +223,7 @@ export default function useSideNavLinks({
           label: '',
           icon: MCPIcon,
           onClick: ()=>{
-            window.open(window.env.GHOST_URL, '_blank');
+            window.open('https://' + window.env.GHOST_URL, '_blank');
           },
           id: 'ghost',
         },
@@ -237,7 +237,7 @@ export default function useSideNavLinks({
           label: '',
           icon: MCPIcon,
           onClick: ()=>{
-            window.open(window.env.CAL_URL, '_blank');
+            window.open('https://' + window.env.CAL_URL, '_blank');
           },
           id: 'cal',
         },
