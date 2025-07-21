@@ -18,5 +18,6 @@ if grep -q '\${VITE_' /app/client/dist/env.js; then
     echo "  - VITE_GHOST_URL"
 fi
 
+cat /app/client/dist/env.js
 # Continue with container CMD
 exec "$@" 
