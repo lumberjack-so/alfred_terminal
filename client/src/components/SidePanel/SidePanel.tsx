@@ -80,6 +80,11 @@ const SidePanel = ({
     panelRef.current?.collapse();
   }, [panelRef, setMinSize, setIsCollapsed, setFullCollapse, setCollapsedSize]);
 
+  console.log(process.env.NOCO_URL);
+  console.log(process.env.N8N_URL);
+  console.log(process.env.GHOST_URL);
+  console.log(process.env.CAL_URL);
+
   const Links = useSideNavLinks({
     endpoint,
     hidePanel,
