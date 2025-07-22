@@ -211,7 +211,7 @@ export default function useSideNavLinks({
           onClick: ()=>{
             window.open('https://' + window.env.N8N_URL, '_blank');
           },
-          id: 'n8n',
+          id: 'n8n-url',
         },
       );
     }
