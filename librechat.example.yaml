@@ -149,36 +149,58 @@ actions:
 
 # Example MCP Servers Object Structure 
 mcpServers:
-  n8n-mcp-server:
-    command: /bin/sh
-    args:
-    - -c
-    - npx -y @smithery/cli@latest run @guinness77/n8n-mcp-server --key f8e7c661-32ad-4e3e-9718-b5a0f877ff71
-#  everything:
-    # type: sse # type can optionally be omitted
-#    url: http://localhost:3001/sse
-#    timeout: 60000  # 1 minute timeout for this server, this is the default timeout for MCP servers.
-  puppeteer:
-    type: stdio
-    command: npx
-    args:
-      - -y
-      - "@modelcontextprotocol/server-puppeteer"
-      - timeout: 300000  # 5 minutes timeout for this server
-#   filesystem:
-#     # type: stdio
-#     command: npx
-#     args:
-#       - -y
-#       - "@modelcontextprotocol/server-filesystem"
-#       - /home/user/LibreChat/
-#     iconPath: /home/user/LibreChat/client/public/assets/logo.svg
-#   mcp-obsidian:
-#     command: npx
-#     args:
-#       - -y
-#       - "mcp-obsidian"
-#       - /path/to/obsidian/vault
+  # n8n MCP Server
+  n8n:
+    type: streamable-http
+    url: "https://server.smithery.ai/@guinness77/n8n-mcp-server/mcp"
+    params:
+      api_key: "${N8N_MCP_KEY}"
+      profile: "${N8N_MCP_PROFILE}"
+    timeout: 30000
+    initTimeout: 10000
+  
+  # Ghost CMS MCP Server
+  ghost:
+    type: streamable-http
+    url: "https://server.smithery.ai/@MFYDev/ghost-mcp/mcp"
+    params:
+      ghostApiUrl: "${GHOST_API_URL}"
+      ghostStaffApiKey: "${GHOST_STAFF_API_KEY}"
+      api_key: "${GHOST_MCP_KEY}"
+      profile: "${GHOST_MCP_PROFILE}"
+    timeout: 30000
+    initTimeout: 10000
+  
+  # Cal.com MCP Server
+  calcom:
+    type: streamable-http
+    url: "https://server.smithery.ai/@mumunha/cal_dot_com_mcpserver/mcp"
+    params:
+      calcomApiKey: "${CALCOM_API_KEY}"
+      api_key: "${CALCOM_MCP_KEY}"
+      profile: "${CALCOM_MCP_PROFILE}"
+    timeout: 30000
+    initTimeout: 10000
+  
+  # Supabase MCP Server
+  supabase:
+    type: streamable-http
+    url: "https://server.smithery.ai/@supabase-community/supabase-mcp/mcp"
+    params:
+      accessToken: "${SUPABASE_ACCESS_TOKEN}"
+      api_key: "${SUPABASE_MCP_KEY}"
+      profile: "${SUPABASE_MCP_PROFILE}"
+    timeout: 30000
+    initTimeout: 10000
+  
+  # Optional: Puppeteer for browser automation
+  # puppeteer:
+  #   type: stdio
+  #   command: npx
+  #   args:
+  #     - -y
+  #     - "@modelcontextprotocol/server-puppeteer"
+  #   timeout: 300000  # 5 minutes timeout for this server
 
 # Definition of custom endpoints
 endpoints:
