@@ -150,16 +150,10 @@ actions:
 # Example MCP Servers Object Structure 
 mcpServers:
   n8n-mcp-server:
-    command: cmd
+    command: /bin/sh
     args:
-     - /c
-     - npx
-     - "-y"
-     - "@smithery/cli@latest"
-     - run
-     - "@guinness77/n8n-mcp-server"
-     - --key
-     - f8e7c661-32ad-4e3e-9718-b5a0f877ff71
+    - -c
+    - npx -y @smithery/cli@latest run @guinness77/n8n-mcp-server --key f8e7c661-32ad-4e3e-9718-b5a0f877ff71
 #  everything:
     # type: sse # type can optionally be omitted
 #    url: http://localhost:3001/sse
