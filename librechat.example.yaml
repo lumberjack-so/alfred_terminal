@@ -202,21 +202,21 @@ endpoints:
   custom:
     # Groq Example
 #    - name: 'groq'
-      apiKey: '${GROQ_API_KEY}'
-      baseURL: 'https://api.groq.com/openai/v1/'
-      models:
-        default:
-          [
-            'llama3-70b-8192',
-            'llama3-8b-8192',
-            'llama2-70b-4096',
-            'mixtral-8x7b-32768',
-            'gemma-7b-it',
-          ]
-        fetch: false
-      titleConvo: true
-      titleModel: 'mixtral-8x7b-32768'
-      modelDisplayLabel: 'groq'
+ #     apiKey: '${GROQ_API_KEY}'
+ #     baseURL: 'https://api.groq.com/openai/v1/'
+ #     models:
+ #       default:
+ #         [
+ #           'llama3-70b-8192',
+ #           'llama3-8b-8192',
+ #           'llama2-70b-4096',
+ #           'mixtral-8x7b-32768',
+ #           'gemma-7b-it',
+ #         ]
+ #       fetch: false
+ #     titleConvo: true
+ #     titleModel: 'mixtral-8x7b-32768'
+ #     modelDisplayLabel: 'groq'
 
     # Mistral AI Example
  #   - name: 'Mistral' # Unique name for the endpoint
@@ -264,19 +264,19 @@ endpoints:
    #   dropParams: ['stop', 'user', 'frequency_penalty', 'presence_penalty']
 
     # OpenRouter Example
-    - name: 'OpenRouter'
+#    - name: 'OpenRouter'
       # For `apiKey` and `baseURL`, you can use environment variables that you define.
       # recommended environment variables:
-      apiKey: '${OPENROUTER_KEY}'
-      baseURL: 'https://openrouter.ai/api/v1'
-      models:
-        default: ['meta-llama/llama-3-70b-instruct']
-        fetch: true
-      titleConvo: true
-      titleModel: 'meta-llama/llama-3-70b-instruct'
+ #     apiKey: '${OPENROUTER_KEY}'
+ #     baseURL: 'https://openrouter.ai/api/v1'
+ #     models:
+ #       default: ['meta-llama/llama-3-70b-instruct']
+ #       fetch: true
+  #    titleConvo: true
+  #    titleModel: 'meta-llama/llama-3-70b-instruct'
       # Recommended: Drop the stop parameter from the request as Openrouter models use a variety of stop tokens.
-      dropParams: ['stop']
-      modelDisplayLabel: 'OpenRouter'
+  #    dropParams: ['stop']
+  #    modelDisplayLabel: 'OpenRouter'
 
     # Portkey AI Example
 #    - name: "Portkey"
