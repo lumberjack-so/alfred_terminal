@@ -1,0 +1,33 @@
+# Local MCP servers configuration (no OAuth required)
+mcpServers:
+  # n8n MCP Server (local)
+  n8n:
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - "@guinness77/n8n-mcp-server"
+    env:
+      N8N_API_URL: "${N8N_URL}"
+      N8N_API_KEY: "${N8N_API_KEY}"
+  
+  # Ghost MCP Server (local)
+  ghost:
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - "@MFYDev/ghost-mcp"
+    env:
+      GHOST_API_URL: "${GHOST_API_URL}"
+      GHOST_ADMIN_API_KEY: "${GHOST_STAFF_API_KEY}"
+  
+  # Alternative: Use a local proxy server
+  # You could create a proxy that handles OAuth for you
+  # mcp-proxy:
+  #   type: streamable-http
+  #   url: "http://localhost:3002/mcp"
+  #   params:
+  #     target: "n8n"
+  #     apiUrl: "${N8N_URL}"
+  #     apiKey: "${N8N_API_KEY}" 

@@ -149,17 +149,19 @@ actions:
 
 # Example MCP Servers Object Structure 
 mcpServers:
-  # n8n MCP Server
+  # n8n MCP Server (Local - No OAuth required)
   n8n:
-    type: streamable-http
-    url: "https://server.smithery.ai/@guinness77/n8n-mcp-server/mcp"
-    params:
-      # Smithery authentication
-      api_key: "${SMITHERY_API_KEY}"
-      profile: "n8n"
-      # n8n service configuration
-      apiUrl: "${N8N_URL}"
-      apiKey: "${N8N_API_KEY}"
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - "@leonardsellem/n8n-mcp-server"
+    env:
+      N8N_API_URL: "${N8N_URL}/api/v1"  # Note: Must include /api/v1
+      N8N_API_KEY: "${N8N_API_KEY}"
+      # Optional: For webhook support
+      # N8N_WEBHOOK_USERNAME: "${N8N_WEBHOOK_USERNAME}"
+      # N8N_WEBHOOK_PASSWORD: "${N8N_WEBHOOK_PASSWORD}"
     timeout: 30000
     initTimeout: 10000
   
