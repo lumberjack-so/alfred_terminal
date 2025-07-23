@@ -12,57 +12,71 @@ cache: true
 
 # Custom interface configuration
 interface:
-  customWelcome: "Welcome to LibreChat! Enjoy your experience."
+  customWelcome: "Welcome to AlfredOS!"
   # MCP Servers UI configuration
   mcpServers:
-    placeholder: 'MCP Servers'
+    placeholder: 'Skills'
   # Privacy policy settings
   privacyPolicy:
-    externalUrl: 'https://librechat.ai/privacy-policy'
+    externalUrl: 'https://lumberjack.so/privacy-policy'
     openNewTab: true
 
   # Terms of service
   termsOfService:
-    externalUrl: 'https://librechat.ai/tos'
+    externalUrl: 'https://lumberjack.so/tos'
     openNewTab: true
     modalAcceptance: true
-    modalTitle: "Terms of Service for LibreChat"
+    modalTitle: "Terms of Service for AlfredOS"
     modalContent: |
-      # Terms and Conditions for LibreChat
+      # Terms and Conditions for AlfredOS
 
-      *Effective Date: February 18, 2024*
+      *Effective Date: December 1, 2024*
 
-      Welcome to LibreChat, the informational website for the open-source AI chat platform, available at https://librechat.ai. These Terms of Service ("Terms") govern your use of our website and the services we offer. By accessing or using the Website, you agree to be bound by these Terms and our Privacy Policy, accessible at https://librechat.ai//privacy.
+      Welcome to AlfredOS, the click-to-deploy business operating system for solopreneurs and indie teams, developed by Ugly Code LLC and available at https://lumberjack.so. These Terms of Service ("Terms") govern your use of AlfredOS and the services we offer. By accessing or using AlfredOS, you agree to be bound by these Terms and our Privacy Policy.
 
-      ## 1. Ownership
+      ## 1. Open Source License
 
-      Upon purchasing a package from LibreChat, you are granted the right to download and use the code for accessing an admin panel for LibreChat. While you own the downloaded code, you are expressly prohibited from reselling, redistributing, or otherwise transferring the code to third parties without explicit permission from LibreChat.
+      AlfredOS is open-source software licensed under the MIT License. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, subject to the conditions of the MIT License. The full license text is available in the project repository.
 
-      ## 2. User Data
+      ## 2. Service Usage
 
-      We collect personal data, such as your name, email address, and payment information, as described in our Privacy Policy. This information is collected to provide and improve our services, process transactions, and communicate with you.
+      AlfredOS is designed as a unified business OS that integrates various tools including n8n, Cal.com, Ghost, Supabase, and NocoDB through Model Context Protocol (MCP) connections. You agree to use these integrated services in compliance with their respective terms of service and in a lawful manner.
 
-      ## 3. Non-Personal Data Collection
+      ## 3. User Data and Privacy
 
-      The Website uses cookies to enhance user experience, analyze site usage, and facilitate certain functionalities. By using the Website, you consent to the use of cookies in accordance with our Privacy Policy.
+      We collect minimal personal data necessary to provide and improve our services, as described in our Privacy Policy. When you deploy AlfredOS on Railway or other platforms, you maintain control over your data. We do not access your deployed instances unless explicitly authorized for support purposes.
 
-      ## 4. Use of the Website
+      ## 4. Acceptable Use
 
-      You agree to use the Website only for lawful purposes and in a manner that does not infringe the rights of, restrict, or inhibit anyone else's use and enjoyment of the Website. Prohibited behavior includes harassing or causing distress or inconvenience to any person, transmitting obscene or offensive content, or disrupting the normal flow of dialogue within the Website.
+      You agree to use AlfredOS only for lawful purposes and in a manner that does not infringe the rights of others. Prohibited uses include but are not limited to: illegal activities, harassment, distribution of malware, or any activity that disrupts or damages the service or its users.
 
-      ## 5. Governing Law
+      ## 5. Disclaimer of Warranties
 
-      These Terms shall be governed by and construed in accordance with the laws of the United States, without giving effect to any principles of conflicts of law.
+      AlfredOS is provided "AS IS" without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. Ugly Code LLC makes no warranty that the service will be uninterrupted, secure, or error-free.
 
-      ## 6. Changes to the Terms
+      ## 6. Limitation of Liability
 
-      We reserve the right to modify these Terms at any time. We will notify users of any changes by email. Your continued use of the Website after such changes have been notified will constitute your consent to such changes.
+      In no event shall Ugly Code LLC, its officers, directors, employees, or agents be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or related to your use of AlfredOS.
 
-      ## 7. Contact Information
+      ## 7. Governing Law
 
-      If you have any questions about these Terms, please contact us at contact@librechat.ai.
+      These Terms shall be governed by and construed in accordance with the laws of the State of California, United States, without giving effect to any principles of conflicts of law.
 
-      By using the Website, you acknowledge that you have read these Terms of Service and agree to be bound by them.
+      ## 8. Changes to the Terms
+
+      We reserve the right to modify these Terms at any time. Changes will be posted on our website, and your continued use of AlfredOS after such changes constitutes acceptance of the new Terms.
+
+      ## 9. Contact Information
+
+      If you have any questions about these Terms, please contact us at:
+      
+      Ugly Code LLC
+      166 Geary St, STE1500 #631
+      San Francisco, CA 94108, USA
+      
+      More information available at: https://lumberjack.so
+
+      By using AlfredOS, you acknowledge that you have read these Terms of Service and agree to be bound by them.
 
   endpointsMenu: true
   modelSelect: true
@@ -101,7 +115,7 @@ registration:
 
 # speech:
 #   tts:
-#     openai:
+#    openai:
 #       url: ''
 #       apiKey: '${TTS_API_KEY}'
 #       model: ''
@@ -187,7 +201,7 @@ endpoints:
   #   capabilities: ["execute_code", "file_search", "actions", "tools"]
   custom:
     # Groq Example
-    - name: 'groq'
+#    - name: 'groq'
       apiKey: '${GROQ_API_KEY}'
       baseURL: 'https://api.groq.com/openai/v1/'
       models:
@@ -205,29 +219,29 @@ endpoints:
       modelDisplayLabel: 'groq'
 
     # Mistral AI Example
-    - name: 'Mistral' # Unique name for the endpoint
+ #   - name: 'Mistral' # Unique name for the endpoint
       # For `apiKey` and `baseURL`, you can use environment variables that you define.
       # recommended environment variables:
-      apiKey: '${MISTRAL_API_KEY}'
-      baseURL: 'https://api.mistral.ai/v1'
+ #     apiKey: '${MISTRAL_API_KEY}'
+ #     baseURL: 'https://api.mistral.ai/v1'
 
       # Models configuration
-      models:
+ #     models:
         # List of default models to use. At least one value is required.
-        default: ['mistral-tiny', 'mistral-small', 'mistral-medium']
+  #      default: ['mistral-tiny', 'mistral-small', 'mistral-medium']
         # Fetch option: Set to true to fetch models from API.
-        fetch: true # Defaults to false.
+  #      fetch: true # Defaults to false.
 
       # Optional configurations
 
       # Title Conversation setting
-      titleConvo: true # Set to true to enable title conversation
+#      titleConvo: true # Set to true to enable title conversation
 
       # Title Method: Choose between "completion" or "functions".
       # titleMethod: "completion"  # Defaults to "completion" if omitted.
 
       # Title Model: Specify the model to use for titles.
-      titleModel: 'mistral-tiny' # Defaults to "gpt-3.5-turbo" if omitted.
+  #    titleModel: 'mistral-tiny' # Defaults to "gpt-3.5-turbo" if omitted.
 
       # Summarize setting: Set to true to enable summarization.
       # summarize: false
@@ -239,7 +253,7 @@ endpoints:
       # forcePrompt: false
 
       # The label displayed for the AI model in messages.
-      modelDisplayLabel: 'Mistral' # Default is "AI" when not set.
+ #     modelDisplayLabel: 'Mistral' # Default is "AI" when not set.
 
       # Add additional parameters to the request. Default params will be overwritten.
       # addParams:
@@ -247,7 +261,7 @@ endpoints:
 
       # Drop Default params parameters from the request. See default params in guide linked below.
       # NOTE: For Mistral, it is necessary to drop the following parameters or you will encounter a 422 Error:
-      dropParams: ['stop', 'user', 'frequency_penalty', 'presence_penalty']
+   #   dropParams: ['stop', 'user', 'frequency_penalty', 'presence_penalty']
 
     # OpenRouter Example
     - name: 'OpenRouter'
@@ -265,22 +279,22 @@ endpoints:
       modelDisplayLabel: 'OpenRouter'
 
     # Portkey AI Example
-    - name: "Portkey"
-      apiKey: "dummy"
-      baseURL: 'https://api.portkey.ai/v1'
-      headers:
-          x-portkey-api-key: '${PORTKEY_API_KEY}'
-          x-portkey-virtual-key: '${PORTKEY_OPENAI_VIRTUAL_KEY}'
-      models:
-          default: ['gpt-4o-mini', 'gpt-4o', 'chatgpt-4o-latest']
-          fetch: true
-      titleConvo: true
-      titleModel: 'current_model'
-      summarize: false
-      summaryModel: 'current_model'
-      forcePrompt: false
-      modelDisplayLabel: 'Portkey'
-      iconURL: https://images.crunchbase.com/image/upload/c_pad,f_auto,q_auto:eco,dpr_1/rjqy7ghvjoiu4cd1xjbf
+#    - name: "Portkey"
+#      apiKey: "dummy"
+#      baseURL: 'https://api.portkey.ai/v1'
+#      headers:
+#          x-portkey-api-key: '${PORTKEY_API_KEY}'
+ #         x-portkey-virtual-key: '${PORTKEY_OPENAI_VIRTUAL_KEY}'
+  #    models:
+   #       default: ['gpt-4o-mini', 'gpt-4o', 'chatgpt-4o-latest']
+    #      fetch: true
+#      titleConvo: true
+#      titleModel: 'current_model'
+#      summarize: false
+#      summaryModel: 'current_model'
+#      forcePrompt: false
+ #     modelDisplayLabel: 'Portkey'
+ #     iconURL: https://images.crunchbase.com/image/upload/c_pad,f_auto,q_auto:eco,dpr_1/rjqy7ghvjoiu4cd1xjbf
 # fileConfig:
 #   endpoints:
 #     assistants:
