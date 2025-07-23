@@ -3,7 +3,7 @@
 # AlfredOS LibreChat Railway Startup Script
 echo "🚀 Starting AlfredOS LibreChat..."
 
-# Configuration settings
+# Configuration
 CONFIG_DIR="/app/config"
 CONFIG_FILE="$CONFIG_DIR/librechat.yaml"
 GITHUB_CONFIG_URL="https://raw.githubusercontent.com/lumberjack-so/LibreChat/refs/heads/main/librechat.example.yaml"
@@ -11,34 +11,31 @@ GITHUB_CONFIG_URL="https://raw.githubusercontent.com/lumberjack-so/LibreChat/ref
 # Ensure config directory exists
 mkdir -p "$CONFIG_DIR"
 
-# Create symlink for Smithery compatibility
-# This allows Smithery to write to /app/librechat.yaml which actually goes to our volume
-echo "🔗 Creating config symlink for MCP server installations..."
-ln -sf "$CONFIG_FILE" /app/librechat.yaml
-
-# Check if config file exists
-if [ -f "$CONFIG_FILE" ]; then
-    echo "📋 Found existing config at $CONFIG_FILE"
-else
-    echo "📥 No config found. Downloading from GitHub..."
+# FIRST TIME SETUP: If no config exists, download from GitHub
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "🆕 First time setup - downloading base config from GitHub..."
     wget -q -O "$CONFIG_FILE" "$GITHUB_CONFIG_URL"
     
     if [ $? -eq 0 ]; then
-        echo "✅ Configuration downloaded successfully"
+        echo "✅ Initial config downloaded successfully"
     else
-        echo "❌ Failed to download configuration"
+        echo "❌ Failed to download initial configuration"
         exit 1
     fi
+else
+    echo "✅ Using existing config with your personal MCP servers"
 fi
 
-# Set CONFIG_PATH to the actual file location
-export CONFIG_PATH="$CONFIG_FILE"
-echo "🔧 CONFIG_PATH set to: $CONFIG_PATH"
+# Create symlink so Smithery can update at /app/librechat.yaml
+ln -sf "$CONFIG_FILE" /app/librechat.yaml
 
-# Show config location info
+# Set CONFIG_PATH to the persistent file
+export CONFIG_PATH="$CONFIG_FILE"
+
 echo "📍 Config locations:"
-echo "   - Actual config: $CONFIG_FILE"
-echo "   - Symlink (for Smithery): /app/librechat.yaml -> $CONFIG_FILE"
+echo "   - Your persistent config: $CONFIG_FILE"
+echo "   - Smithery writes to: /app/librechat.yaml (symlink)"
+echo "🔧 Your MCP server configurations will persist across restarts!"
 
 # Run the original entrypoint with backend
 exec /entrypoint.sh npm run backend 
