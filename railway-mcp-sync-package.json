@@ -1,0 +1,19 @@
+{
+  "name": "railway-mcp-sync",
+  "version": "1.0.0",
+  "description": "Railway function to sync Smithery MCP server configurations to Railway environment variables",
+  "main": "railway-mcp-sync.ts",
+  "scripts": {
+    "start": "bun run railway-mcp-sync.ts"
+  },
+  "dependencies": {
+    "@smithery/cli": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "bun-types": "latest"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+} 

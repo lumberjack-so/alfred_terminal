@@ -154,8 +154,12 @@ mcpServers:
     type: streamable-http
     url: "https://server.smithery.ai/@guinness77/n8n-mcp-server/mcp"
     params:
-      api_key: "${N8N_MCP_KEY}"
-      profile: "${N8N_MCP_PROFILE}"
+      # Smithery authentication
+      api_key: "${SMITHERY_API_KEY}"
+      profile: "n8n"
+      # n8n service configuration
+      apiUrl: "${N8N_URL}"
+      apiKey: "${N8N_API_KEY}"
     timeout: 30000
     initTimeout: 10000
   
@@ -164,10 +168,12 @@ mcpServers:
     type: streamable-http
     url: "https://server.smithery.ai/@MFYDev/ghost-mcp/mcp"
     params:
+      # Smithery authentication
+      api_key: "${SMITHERY_API_KEY}"
+      profile: "ghost"
+      # Ghost service configuration
       ghostApiUrl: "${GHOST_API_URL}"
       ghostStaffApiKey: "${GHOST_STAFF_API_KEY}"
-      api_key: "${GHOST_MCP_KEY}"
-      profile: "${GHOST_MCP_PROFILE}"
     timeout: 30000
     initTimeout: 10000
   
@@ -176,9 +182,11 @@ mcpServers:
     type: streamable-http
     url: "https://server.smithery.ai/@mumunha/cal_dot_com_mcpserver/mcp"
     params:
+      # Smithery authentication
+      api_key: "${SMITHERY_API_KEY}"
+      profile: "calcom"
+      # Cal.com service configuration
       calcomApiKey: "${CALCOM_API_KEY}"
-      api_key: "${CALCOM_MCP_KEY}"
-      profile: "${CALCOM_MCP_PROFILE}"
     timeout: 30000
     initTimeout: 10000
   
@@ -187,9 +195,11 @@ mcpServers:
     type: streamable-http
     url: "https://server.smithery.ai/@supabase-community/supabase-mcp/mcp"
     params:
+      # Smithery authentication
+      api_key: "${SMITHERY_API_KEY}"
+      profile: "supabase"
+      # Supabase service configuration
       accessToken: "${SUPABASE_ACCESS_TOKEN}"
-      api_key: "${SUPABASE_MCP_KEY}"
-      profile: "${SUPABASE_MCP_PROFILE}"
     timeout: 30000
     initTimeout: 10000
   
