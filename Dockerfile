@@ -38,10 +38,11 @@ RUN \
 # Copy the env template file and entrypoint
 COPY --chown=node:node client/public/env.template.js /app/client/dist/env.template.js
 COPY --chown=node:node entrypoint.sh /entrypoint.sh
+COPY --chown=node:node railway-alfredos-start.sh /railway-alfredos-start.sh
 
 # Switch to root to set executable permissions, then switch back
 USER root
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh /railway-alfredos-start.sh
 USER node
 
 RUN mkdir -p /app/client/public/images /app/api/logs
