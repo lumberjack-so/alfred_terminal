@@ -15,7 +15,7 @@ import BookmarkPanel from '~/components/SidePanel/Bookmarks/BookmarkPanel';
 import MemoryViewer from '~/components/SidePanel/Memories/MemoryViewer';
 import PanelSwitch from '~/components/SidePanel/Builder/PanelSwitch';
 import PromptsAccordion from '~/components/Prompts/PromptsAccordion';
-import { Blocks, MCPIcon, AttachmentIcon } from '~/components/svg';
+import { Blocks, MCPIcon, AttachmentIcon, NocoIcon, N8NIcon, GhostIcon, CalIcon } from '~/components/svg';
 import Parameters from '~/components/SidePanel/Parameters/Panel';
 import FilesPanel from '~/components/SidePanel/Files/Panel';
 import MCPPanel from '~/components/SidePanel/MCP/MCPPanel';
@@ -193,7 +193,7 @@ export default function useSideNavLinks({
         {
           title: 'com_sidepanel_noco_db',
           label: '',
-          icon: MCPIcon,
+          icon: NocoIcon,
           onClick: ()=>{
             window.open( 'https://' + window.env.NOCO_URL, '_blank');
           },
@@ -207,7 +207,7 @@ export default function useSideNavLinks({
         {
           title: 'com_sidepanel_n8n',
           label: '',
-          icon: MCPIcon,
+          icon: N8NIcon,
           onClick: ()=>{
             window.open('https://' + window.env.N8N_URL, '_blank');
           },
@@ -221,7 +221,7 @@ export default function useSideNavLinks({
         {
           title: 'com_sidepanel_ghost',
           label: '',
-          icon: MCPIcon,
+          icon: GhostIcon,
           onClick: ()=>{
             window.open('https://' + window.env.GHOST_URL, '_blank');
           },
@@ -235,7 +235,7 @@ export default function useSideNavLinks({
         {
           title: 'com_sidepanel_cal',
           label: '',
-          icon: MCPIcon,
+          icon: CalIcon,
           onClick: ()=>{
             window.open('https://' + window.env.CAL_URL, '_blank');
           },

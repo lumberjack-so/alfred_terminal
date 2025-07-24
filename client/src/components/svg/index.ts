@@ -64,3 +64,7 @@ export { default as XAIcon } from './XAIcon';
 export { default as PersonalizationIcon } from './PersonalizationIcon';
 export { default as MCPIcon } from './MCPIcon';
 export { default as VectorIcon } from './VectorIcon';
+export { default as NocoIcon } from './NocoIcon';
+export { default as N8NIcon } from './N8NIcon';
+export { default as GhostIcon } from './GhostIcon';
+export { default as CalIcon } from './CalIcon';
