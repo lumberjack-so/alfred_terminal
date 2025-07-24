@@ -21,6 +21,7 @@ import FilesPanel from '~/components/SidePanel/Files/Panel';
 import MCPPanel from '~/components/SidePanel/MCP/MCPPanel';
 import { useGetStartupConfig } from '~/data-provider';
 import { useHasAccess } from '~/hooks';
+import SupabaseIcon from '~/components/svg/SupabaseIcon';
 
 // Declare window.env type
 declare global {
@@ -30,6 +31,7 @@ declare global {
       N8N_URL?: string;
       CAL_URL?: string;
       GHOST_URL?: string;
+      SUPABASE_URL?: string;
     };
   }
 }
@@ -242,6 +244,22 @@ export default function useSideNavLinks({
           id: 'cal',
         },
       );
+      
+    }
+
+    if (window.env?.SUPABASE_URL) {
+      links.push(
+        {
+          title: 'com_sidepanel_supabase',
+          label: '',
+          icon: SupabaseIcon,
+          onClick: ()=>{
+            window.open('https://' + window.env.SUPABASE_URL, '_blank');
+          },
+          id: 'supabase',
+        },
+      );
+      
     }
 
     return links;
