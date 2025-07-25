@@ -159,30 +159,13 @@ mcpServers:
         N8N_API_URL: "${N8N_URL}"
         N8N_API_KEY: "${N8N_API_KEY}"
 
-  n8n-mcp:
-    type: streamable-http
-    url: "https://${RAILWAY_PUBLIC_DOMAIN}/mcp"
-    params:
-      api_key: "${SMITHERY_API_KEY}"
-      profile: "${SMITHERY_PROFILE}"
-    env:
-      n8nApiUrl: "${N8N_URL}" 
-      n8nApiKey: "${N8N_API_KEY}"
-    timeout: 300000
-    initTimeout: 300000
-  
   ghost:
-    type: streamable-http
-    url: "https://server.smithery.ai/@MFYDev/ghost-mcp/mcp"
-    params:
-      # Smithery authentication
-      api_key: "${SMITHERY_API_KEY}"
-      profile: "${SMITHERY_PROFILE}"
-      # Ghost service configuration
-      ghostApiUrl: "${GHOST_API_URL}"
-      ghostStaffApiKey: "${GHOST_STAFF_API_KEY}"
-    timeout: 30000
-    initTimeout: 10000
+      command: "npx"
+      args: ["-y", "@fanyangmeng/ghost-mcp"]
+      env:
+        GHOST_API_URL: "${GHOST_API_URL}"
+        GHOST_ADMIN_API_KEY: "${GHOST_ADMIN_API_KEY}"
+        GHOST_CONTENT_API_KEY: "${GHOST_CONTENT_API_KEY}"
   
   # Cal.com MCP Server
   calcom:
