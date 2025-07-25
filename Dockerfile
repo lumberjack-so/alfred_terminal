@@ -14,18 +14,16 @@ ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
 COPY --from=ghcr.io/astral-sh/uv:0.6.13 /uv /uvx /bin/
 RUN uv --version
 
-# Install git first (if not already installed)
-  RUN apk add --no-cache git
+# Install git first
+RUN apk add --no-cache git
 
-  # Clone, build and install your fork globally
-  RUN git clone https://github.com/lumberjack-so/n8n-mcp.git /tmp/n8n-mcp && \
-      cd /tmp/n8n-mcp && \
-      npm install && \
-      npm run build && \
-      npm run rebuild && \
-      npm install -g . && \
-      rm -rf /tmp/n8n-mcp && \
-      apk del git
+# Clone, build and install your fork
+RUN git clone https://github.com/lumberjack-so/n8n-mcp.git /tmp/n8n-mcp && \
+    cd /tmp/n8n-mcp && \
+    npm install && \
+    npm run build && \
+    npm run rebuild && \
+    cp -r /tmp/n8n-mcp /opt/n8n-mcp && \
 
 RUN mkdir -p /app && chown node:node /app
 WORKDIR /app
