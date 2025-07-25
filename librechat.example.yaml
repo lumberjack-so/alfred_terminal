@@ -151,17 +151,13 @@ actions:
 mcpServers:
   # n8n MCP Server (Local - No OAuth required)
   n8n:
-    type: stdio
-    command: npx
-    args:
-      - -y
-      - "@leonardsellem/n8n-mcp-server"
-    env:
-      N8N_API_URL: "${N8N_URL}/api/v1"  # Note: Must include /api/v1
-      N8N_API_KEY: "${N8N_API_KEY}"
-      # Optional: For webhook support
-      # N8N_WEBHOOK_USERNAME: "${N8N_WEBHOOK_USERNAME}"
-      # N8N_WEBHOOK_PASSWORD: "${N8N_WEBHOOK_PASSWORD}"
+    type: streamable-http
+    url: "https://server.smithery.ai/@MFYDev/ghost-mcp/mcp"
+    params:
+      api_key: "${SMITHERY_API_KEY}"
+      profile: "${SMITHERY_PROFILE}"
+      n8nApiUrl: "${N8N_URL}" 
+      n8nApiKey: "${N8N_API_KEY}"
     timeout: 30000
     initTimeout: 10000
   
@@ -172,7 +168,7 @@ mcpServers:
     params:
       # Smithery authentication
       api_key: "${SMITHERY_API_KEY}"
-      profile: "ghost"
+      profile: "${SMITHERY_PROFILE}"
       # Ghost service configuration
       ghostApiUrl: "${GHOST_API_URL}"
       ghostStaffApiKey: "${GHOST_STAFF_API_KEY}"
@@ -186,7 +182,7 @@ mcpServers:
     params:
       # Smithery authentication
       api_key: "${SMITHERY_API_KEY}"
-      profile: "calcom"
+      profile: "${SMITHERY_PROFILE}"
       # Cal.com service configuration
       calcomApiKey: "${CALCOM_API_KEY}"
     timeout: 30000
@@ -199,7 +195,7 @@ mcpServers:
     params:
       # Smithery authentication
       api_key: "${SMITHERY_API_KEY}"
-      profile: "supabase"
+      profile: "${SMITHERY_PROFILE}"
       # Supabase service configuration
       accessToken: "${SUPABASE_ACCESS_TOKEN}"
     timeout: 30000
