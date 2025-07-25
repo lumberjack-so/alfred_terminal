@@ -15,7 +15,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.6.13 /uv /uvx /bin/
 RUN uv --version
 
 # Install n8n-mcp globally while still root
-RUN npm install -g n8n-mcp
+RUN npm install -g github:lumberjack-so/n8n-mcp
 
 RUN mkdir -p /app && chown node:node /app
 WORKDIR /app
