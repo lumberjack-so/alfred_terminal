@@ -21,7 +21,7 @@ import Parameters from '~/components/SidePanel/Parameters/Panel';
 import FilesPanel from '~/components/SidePanel/Files/Panel';
 import MCPPanel from '~/components/SidePanel/MCP/MCPPanel';
 import { useGetStartupConfig } from '~/data-provider';
-import { useHasAccess } from '~/hooks';
+import { useHasAccess, useNewConvo } from '~/hooks';
 import SupabaseIcon from '~/components/svg/SupabaseIcon';
 
 // Declare window.env type
@@ -294,6 +294,7 @@ export default function useSideNavLinks({
     hidePanel,
     startupConfig,
     navigate,
+    newConversation,
   ]);
 
   return Links;
