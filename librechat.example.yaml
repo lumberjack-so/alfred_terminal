@@ -158,9 +158,20 @@ mcpServers:
     env:
       n8nApiUrl: "${N8N_URL}" 
       n8nApiKey: "${N8N_API_KEY}"
-      disableConsoleOutput: false
-    timeout: 30000
-    initTimeout: 10000
+    timeout: 300000
+    initTimeout: 300000
+
+  n8n-mcp:
+    type: streamable-http
+    url: "https://${RAILWAY_PUBLIC_DOMAIN}/mcp"
+    params:
+      api_key: "${SMITHERY_API_KEY}"
+      profile: "${SMITHERY_PROFILE}"
+    env:
+      n8nApiUrl: "${N8N_URL}" 
+      n8nApiKey: "${N8N_API_KEY}"
+    timeout: 300000
+    initTimeout: 300000
   
   ghost:
     type: streamable-http
