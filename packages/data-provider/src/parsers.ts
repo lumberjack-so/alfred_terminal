@@ -16,6 +16,8 @@ import {
   compactGoogleSchema,
   compactPluginsSchema,
   compactAssistantSchema,
+  terminalSchema,
+  compactTerminalSchema,
 } from './schemas';
 import { bedrockInputSchema } from './bedrock';
 import { extractEnvVariable } from './utils';
@@ -28,7 +30,8 @@ type EndpointSchema =
   | typeof gptPluginsSchema
   | typeof assistantSchema
   | typeof compactAgentsSchema
-  | typeof bedrockInputSchema;
+  | typeof bedrockInputSchema
+  | typeof terminalSchema;
 
 export type EndpointSchemaKey = Exclude<EModelEndpoint, EModelEndpoint.chatGPTBrowser>;
 
@@ -43,6 +46,7 @@ const endpointSchemas: Record<EndpointSchemaKey, EndpointSchema> = {
   [EModelEndpoint.azureAssistants]: assistantSchema,
   [EModelEndpoint.agents]: compactAgentsSchema,
   [EModelEndpoint.bedrock]: bedrockInputSchema,
+  [EModelEndpoint.terminal]: terminalSchema,
 };
 
 // const schemaCreators: Record<EModelEndpoint, (customSchema: DefaultSchemaValues) => EndpointSchema> = {
@@ -62,6 +66,7 @@ export function getEnabledEndpoints() {
     EModelEndpoint.gptPlugins,
     EModelEndpoint.anthropic,
     EModelEndpoint.bedrock,
+    EModelEndpoint.terminal,
   ];
 
   const endpointsEnv = process.env.ENDPOINTS ?? '';
@@ -269,6 +274,10 @@ export const getResponseSender = (endpointOption: t.TEndpointOption): string => 
     return 'Gemini';
   }
 
+  if (endpoint === EModelEndpoint.terminal) {
+    return modelLabel || alternateName[endpoint] || 'Terminal';
+  }
+
   if (endpoint === EModelEndpoint.custom || endpointType === EModelEndpoint.custom) {
     if (modelLabel) {
       return modelLabel;
@@ -300,7 +309,8 @@ type CompactEndpointSchema =
   | typeof compactGoogleSchema
   | typeof anthropicSchema
   | typeof bedrockInputSchema
-  | typeof compactPluginsSchema;
+  | typeof compactPluginsSchema
+  | typeof compactTerminalSchema;
 
 const compactEndpointSchemas: Record<EndpointSchemaKey, CompactEndpointSchema> = {
   [EModelEndpoint.openAI]: openAISchema,
@@ -313,6 +323,7 @@ const compactEndpointSchemas: Record<EndpointSchemaKey, CompactEndpointSchema> =
   [EModelEndpoint.bedrock]: bedrockInputSchema,
   [EModelEndpoint.anthropic]: anthropicSchema,
   [EModelEndpoint.gptPlugins]: compactPluginsSchema,
+  [EModelEndpoint.terminal]: compactTerminalSchema,
 };
 
 export const parseCompactConvo = ({

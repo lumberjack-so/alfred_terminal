@@ -40,6 +40,7 @@ export const paramEndpoints = new Set<EModelEndpoint | string>([
   EModelEndpoint.anthropic,
   EModelEndpoint.custom,
   EModelEndpoint.google,
+  EModelEndpoint.terminal,
 ]);
 
 export enum BedrockProviders {
@@ -1195,5 +1196,32 @@ export const compactAgentsBaseSchema = tConversationSchema.pick({
 });
 
 export const compactAgentsSchema = compactAgentsBaseSchema
+  .transform((obj) => removeNullishValues(obj))
+  .catch(() => ({}));
+
+export const terminalBaseSchema = tConversationSchema.pick({
+  model: true,
+  modelLabel: true,
+  promptPrefix: true,
+  temperature: true,
+  top_p: true,
+  presence_penalty: true,
+  frequency_penalty: true,
+  resendFiles: true,
+  imageDetail: true,
+  iconURL: true,
+  greeting: true,
+  spec: true,
+  artifacts: true,
+  stop: true,
+  max_tokens: true,
+  maxOutputTokens: true,
+});
+
+export const terminalSchema = terminalBaseSchema
+  .transform((obj) => removeNullishValues(obj))
+  .catch(() => ({}));
+
+export const compactTerminalSchema = terminalBaseSchema
   .transform((obj) => removeNullishValues(obj))
   .catch(() => ({}));
