@@ -16,6 +16,7 @@ export default defineConfig(({ command }) => ({
       '/api': {
         target: 'http://localhost:3080',
         changeOrigin: true,
+        ws: true,
       },
       '/oauth': {
         target: 'http://localhost:3080',

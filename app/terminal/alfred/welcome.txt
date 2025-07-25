@@ -1,0 +1,15 @@
+Welcome to LibreChat Terminal!
+
+This is your sandboxed terminal environment where you can:
+- Run commands safely
+- Execute scripts
+- Manage files
+- Use version control with git
+
+Your terminal is isolated to this directory for security.
+Type 'help' or use allowed commands to get started.
+
+Allowed commands: ls, dir, pwd, cd, echo, cat, type, mkdir, touch, 
+rm, del, cp, copy, mv, move, node, npm, yarn, git, python, pip, clear, cls
+
+Happy coding!

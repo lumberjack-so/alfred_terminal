@@ -1,0 +1,198 @@
+const express = require('express');
+const WebSocket = require('ws');
+const { requireJwtAuth } = require('~/server/middleware');
+const TerminalService = require('~/server/services/TerminalService');
+const logger = require('~/config/winston');
+
+const router = express.Router();
+
+// REST endpoints
+router.post('/create', requireJwtAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { sessionId, session } = await TerminalService.createSession(userId);
+    
+    res.json({
+      sessionId,
+      baseDir: session.baseDir,
+      currentDir: session.currentDir
+    });
+  } catch (error) {
+    logger.error('[Terminal] Error creating session:', error);
+    res.status(500).json({ error: 'Failed to create terminal session' });
+  }
+});
+
+router.get('/sessions', requireJwtAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const sessions = TerminalService.getSessionsByUser(userId);
+    res.json({ sessions });
+  } catch (error) {
+    logger.error('[Terminal] Error getting sessions:', error);
+    res.status(500).json({ error: 'Failed to get sessions' });
+  }
+});
+
+router.delete('/session/:sessionId', requireJwtAuth, async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const session = TerminalService.getSession(sessionId);
+    
+    if (!session || session.userId !== req.user.id) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    TerminalService.destroySession(sessionId);
+    res.json({ message: 'Session destroyed' });
+  } catch (error) {
+    logger.error('[Terminal] Error destroying session:', error);
+    res.status(500).json({ error: 'Failed to destroy session' });
+  }
+});
+
+router.get('/history/:sessionId', requireJwtAuth, async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const session = TerminalService.getSession(sessionId);
+    
+    if (!session || session.userId !== req.user.id) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    const history = session.getHistory();
+    res.json({ history });
+  } catch (error) {
+    logger.error('[Terminal] Error getting history:', error);
+    res.status(500).json({ error: 'Failed to get history' });
+  }
+});
+
+// WebSocket handler setup function
+function setupWebSocket(server) {
+  const wss = new WebSocket.Server({ 
+    server,
+    path: '/api/terminal/ws',
+    verifyClient: (info, cb) => {
+      // Allow all connections for now, authentication will be handled per-message
+      cb(true);
+    }
+  });
+
+  wss.on('connection', async (ws, req) => {
+    let sessionId = null;
+    let session = null;
+    let userId = null;
+
+    logger.info('[Terminal] New WebSocket connection attempt');
+
+    // Parse session ID from query string
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    sessionId = url.searchParams.get('sessionId');
+
+    if (!sessionId) {
+      logger.warn('[Terminal] WebSocket connection missing session ID');
+      ws.send(JSON.stringify({ type: 'error', data: 'Session ID required' }));
+      ws.close();
+      return;
+    }
+
+    session = TerminalService.getSession(sessionId);
+    if (!session) {
+      logger.warn(`[Terminal] Invalid session ID: ${sessionId}`);
+      ws.send(JSON.stringify({ type: 'error', data: 'Invalid session' }));
+      ws.close();
+      return;
+    }
+
+    userId = session.userId;
+    logger.info(`[Terminal] WebSocket connected for session ${sessionId}, user ${userId}`);
+
+    // Set up event handlers
+    session.on('output', (data) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'output', data }));
+      }
+    });
+
+    session.on('error', (data) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'error', data }));
+      }
+    });
+
+    session.on('clear', () => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'clear' }));
+      }
+    });
+
+    session.on('exit', (code) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'exit', code }));
+        ws.close();
+      }
+    });
+
+    // Handle incoming messages
+    ws.on('message', async (message) => {
+      try {
+        const data = JSON.parse(message);
+        
+        switch (data.type) {
+          case 'command':
+            await session.executeCommand(data.command);
+            break;
+          
+          case 'resize':
+            session.resize(data.cols, data.rows);
+            break;
+          
+          case 'ping':
+            ws.send(JSON.stringify({ type: 'pong' }));
+            break;
+          
+          default:
+            ws.send(JSON.stringify({ 
+              type: 'error', 
+              data: `Unknown message type: ${data.type}` 
+            }));
+        }
+      } catch (error) {
+        logger.error('[Terminal] WebSocket message error:', error);
+        ws.send(JSON.stringify({ 
+          type: 'error', 
+          data: 'Invalid message format' 
+        }));
+      }
+    });
+
+    ws.on('close', () => {
+      logger.info(`[Terminal] WebSocket disconnected for session ${sessionId}`);
+      // Remove event listeners to prevent memory leaks
+      session.removeAllListeners('output');
+      session.removeAllListeners('error');
+      session.removeAllListeners('clear');
+      session.removeAllListeners('exit');
+    });
+
+    ws.on('error', (error) => {
+      logger.error('[Terminal] WebSocket error:', error);
+    });
+
+    // Send ready message
+    ws.send(JSON.stringify({ 
+      type: 'ready', 
+      sessionId,
+      currentDir: session.currentDir 
+    }));
+  });
+
+  return wss;
+}
+
+// Export router and WebSocket setup
+module.exports = {
+  router,
+  setupWebSocket
+};

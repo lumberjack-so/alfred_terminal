@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Terminal WebSocket Test</title>
+</head>
+<body>
+    <h1>Terminal WebSocket Connection Test</h1>
+    <div id="status">Not connected</div>
+    <div id="messages"></div>
+    
+    <script>
+        const status = document.getElementById('status');
+        const messages = document.getElementById('messages');
+        
+        function log(message) {
+            const p = document.createElement('p');
+            p.textContent = `[${new Date().toISOString()}] ${message}`;
+            messages.appendChild(p);
+            console.log(message);
+        }
+        
+        // Test 1: Check if the terminal create endpoint works
+        async function testCreateSession() {
+            log('Testing terminal session creation...');
+            try {
+                const response = await fetch('/api/terminal/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Note: In real app, this should use actual JWT token
+                        'Authorization': 'Bearer test-token'
+                    }
+                });
+                
+                log(`Create session response: ${response.status} ${response.statusText}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`Session created: ${JSON.stringify(data)}`);
+                    return data.sessionId;
+                } else {
+                    const error = await response.text();
+                    log(`Create session error: ${error}`);
+                }
+            } catch (error) {
+                log(`Create session exception: ${error.message}`);
+            }
+            return null;
+        }
+        
+        // Test 2: Test WebSocket connection
+        async function testWebSocket(sessionId) {
+            if (!sessionId) {
+                log('No session ID, skipping WebSocket test');
+                return;
+            }
+            
+            log('Testing WebSocket connection...');
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/api/terminal/ws?sessionId=${sessionId}`;
+            
+            log(`Connecting to: ${wsUrl}`);
+            status.textContent = 'Connecting...';
+            
+            try {
+                const ws = new WebSocket(wsUrl);
+                
+                ws.onopen = () => {
+                    log('WebSocket connected successfully');
+                    status.textContent = 'Connected';
+                    status.style.color = 'green';
+                    
+                    // Send a test message
+                    ws.send(JSON.stringify({ type: 'ping' }));
+                };
+                
+                ws.onmessage = (event) => {
+                    log(`Received message: ${event.data}`);
+                };
+                
+                ws.onerror = (error) => {
+                    log(`WebSocket error: ${error}`);
+                    status.textContent = 'Error';
+                    status.style.color = 'red';
+                };
+                
+                ws.onclose = (event) => {
+                    log(`WebSocket closed: code=${event.code}, reason=${event.reason}`);
+                    status.textContent = 'Disconnected';
+                    status.style.color = 'orange';
+                };
+                
+            } catch (error) {
+                log(`WebSocket exception: ${error.message}`);
+                status.textContent = 'Failed to connect';
+                status.style.color = 'red';
+            }
+        }
+        
+        // Run tests
+        async function runTests() {
+            log('Starting terminal connection tests...');
+            const sessionId = await testCreateSession();
+            await testWebSocket(sessionId);
+        }
+        
+        // Run tests when page loads
+        runTests();
+    </script>
+</body>
+</html>

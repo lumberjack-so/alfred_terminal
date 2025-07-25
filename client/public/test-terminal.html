@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Terminal Connection Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #333;
+        }
+        #status.connected { background: #2d4a2d; color: #4caf50; }
+        #status.error { background: #4a2d2d; color: #f44336; }
+        #messages {
+            background: #000;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .message {
+            margin: 2px 0;
+            font-size: 12px;
+        }
+        .message.error { color: #f44336; }
+        .message.output { color: #4caf50; }
+        .message.info { color: #2196f3; }
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1976d2; }
+        button:disabled { background: #666; cursor: not-allowed; }
+        input {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 8px;
+            border-radius: 4px;
+            width: 300px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Terminal WebSocket Test</h1>
+    
+    <div id="status">Not connected</div>
+    
+    <div>
+        <button id="createBtn">1. Create Session</button>
+        <button id="connectBtn" disabled>2. Connect WebSocket</button>
+        <button id="testBtn" disabled>3. Send Test Command</button>
+        <button id="closeBtn" disabled>4. Close Connection</button>
+    </div>
+    
+    <div>
+        <input type="text" id="commandInput" placeholder="Enter command..." disabled>
+        <button id="sendBtn" disabled>Send</button>
+    </div>
+    
+    <h3>Messages:</h3>
+    <div id="messages"></div>
+    
+    <script>
+        const status = document.getElementById('status');
+        const messages = document.getElementById('messages');
+        const createBtn = document.getElementById('createBtn');
+        const connectBtn = document.getElementById('connectBtn');
+        const testBtn = document.getElementById('testBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const commandInput = document.getElementById('commandInput');
+        const sendBtn = document.getElementById('sendBtn');
+        
+        let sessionId = null;
+        let ws = null;
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+            console.log(message);
+        }
+        
+        // Get JWT token from cookies
+        function getAuthToken() {
+            const cookies = document.cookie.split(';');
+            for (const cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'token') {
+                    return value;
+                }
+            }
+            return null;
+        }
+        
+        // 1. Create terminal session
+        createBtn.addEventListener('click', async () => {
+            log('Creating terminal session...');
+            const token = getAuthToken();
+            
+            if (!token) {
+                log('No auth token found. Please login to LibreChat first.', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/terminal/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                sessionId = data.sessionId;
+                log(`Session created: ${sessionId}`, 'output');
+                log(`Base directory: ${data.baseDir}`, 'output');
+                
+                connectBtn.disabled = false;
+                createBtn.disabled = true;
+            } catch (error) {
+                log(`Failed to create session: ${error.message}`, 'error');
+            }
+        });
+        
+        // 2. Connect WebSocket
+        connectBtn.addEventListener('click', () => {
+            if (!sessionId) {
+                log('No session ID available', 'error');
+                return;
+            }
+            
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/api/terminal/ws?sessionId=${sessionId}`;
+            
+            log(`Connecting to: ${wsUrl}`);
+            status.textContent = 'Connecting...';
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {
+                log('WebSocket connected successfully!', 'output');
+                status.textContent = 'Connected';
+                status.className = 'connected';
+                
+                connectBtn.disabled = true;
+                testBtn.disabled = false;
+                closeBtn.disabled = false;
+                commandInput.disabled = false;
+                sendBtn.disabled = false;
+            };
+            
+            ws.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    
+                    switch (message.type) {
+                        case 'ready':
+                            log(`Terminal ready in: ${message.currentDir}`, 'output');
+                            break;
+                        case 'output':
+                            log(`Terminal output: ${message.data}`, 'output');
+                            break;
+                        case 'error':
+                            log(`Terminal error: ${message.data}`, 'error');
+                            break;
+                        case 'clear':
+                            messages.innerHTML = '';
+                            log('Terminal cleared', 'info');
+                            break;
+                        case 'exit':
+                            log(`Process exited with code: ${message.code}`, 'info');
+                            break;
+                        case 'pong':
+                            log('Pong received', 'info');
+                            break;
+                        default:
+                            log(`Unknown message type: ${message.type}`, 'error');
+                    }
+                } catch (e) {
+                    log(`Raw message: ${event.data}`, 'info');
+                }
+            };
+            
+            ws.onerror = (error) => {
+                log(`WebSocket error: ${error}`, 'error');
+                status.textContent = 'Error';
+                status.className = 'error';
+            };
+            
+            ws.onclose = (event) => {
+                log(`WebSocket closed (code: ${event.code}, reason: ${event.reason})`, 'info');
+                status.textContent = 'Disconnected';
+                status.className = '';
+                
+                ws = null;
+                connectBtn.disabled = false;
+                testBtn.disabled = true;
+                closeBtn.disabled = true;
+                commandInput.disabled = true;
+                sendBtn.disabled = true;
+            };
+        });
+        
+        // 3. Send test command
+        testBtn.addEventListener('click', () => {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('WebSocket not connected', 'error');
+                return;
+            }
+            
+            const testCommand = 'echo "Hello from Terminal Test!"';
+            log(`Sending test command: ${testCommand}`);
+            ws.send(JSON.stringify({ 
+                type: 'command', 
+                command: testCommand + '\n'
+            }));
+        });
+        
+        // Send custom command
+        function sendCommand() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('WebSocket not connected', 'error');
+                return;
+            }
+            
+            const command = commandInput.value.trim();
+            if (!command) return;
+            
+            log(`Sending command: ${command}`);
+            ws.send(JSON.stringify({ 
+                type: 'command', 
+                command: command + '\n'
+            }));
+            
+            commandInput.value = '';
+        }
+        
+        sendBtn.addEventListener('click', sendCommand);
+        commandInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendCommand();
+            }
+        });
+        
+        // 4. Close connection
+        closeBtn.addEventListener('click', () => {
+            if (ws) {
+                log('Closing WebSocket connection...');
+                ws.close();
+            }
+        });
+        
+        // Initial message
+        log('Ready to test terminal connection. Please make sure you are logged in to LibreChat.');
+    </script>
+</body>
+</html>

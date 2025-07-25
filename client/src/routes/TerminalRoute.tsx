@@ -7,7 +7,6 @@ import { useGetConvoIdQuery, useGetStartupConfig, useGetEndpointsQuery } from '~
 import { useNewConvo, useAppStartup, useAssistantListMap, useIdChangeEffect } from '~/hooks';
 import { getDefaultModelSpec, getModelSpecPreset, logger } from '~/utils';
 import { ToolCallsMapProvider } from '~/Providers';
-import ChatView from '~/components/Chat/ChatView';
 import { TerminalView } from '~/components/Terminal';
 import useAuthRedirect from './useAuthRedirect';
 import temporaryStore from '~/store/temporary';
@@ -15,7 +14,7 @@ import { Spinner } from '~/components/svg';
 import { useRecoilCallback } from 'recoil';
 import store from '~/store';
 
-export default function ChatRoute() {
+export default function TerminalRoute() {
   const { data: startupConfig } = useGetStartupConfig();
   const { isAuthenticated, user } = useAuthRedirect();
 
@@ -67,46 +66,29 @@ export default function ChatRoute() {
     }
 
     if (conversationId === Constants.NEW_CONVO && endpointsQuery.data && modelsQuery.data) {
-      const spec = getDefaultModelSpec(startupConfig);
-      logger.log('conversation', 'ChatRoute, new convo effect', conversation);
+      // Create a new terminal conversation with the terminal endpoint
+      const terminalPreset: TPreset = {
+        endpoint: 'terminal' as EModelEndpoint,
+        model: 'terminal',
+        title: 'Terminal Session',
+        presetId: '',
+      };
+      
+      logger.log('conversation', 'TerminalRoute, new terminal session', conversation);
       newConversation({
         modelsData: modelsQuery.data,
-        template: conversation ? conversation : undefined,
-        ...(spec ? { preset: getModelSpecPreset(spec) } : {}),
+        template: conversation ? { ...conversation, endpoint: 'terminal' as EModelEndpoint } : undefined,
+        preset: terminalPreset,
       });
 
       hasSetConversation.current = true;
     } else if (initialConvoQuery.data && endpointsQuery.data && modelsQuery.data) {
-      logger.log('conversation', 'ChatRoute initialConvoQuery', initialConvoQuery.data);
+      logger.log('conversation', 'TerminalRoute initialConvoQuery', initialConvoQuery.data);
+      // Ensure existing conversation is loaded with terminal endpoint
       newConversation({
-        template: initialConvoQuery.data,
+        template: { ...initialConvoQuery.data, endpoint: 'terminal' as EModelEndpoint },
         /* this is necessary to load all existing settings */
-        preset: initialConvoQuery.data as TPreset,
-        modelsData: modelsQuery.data,
-        keepLatestMessage: true,
-      });
-      hasSetConversation.current = true;
-    } else if (
-      conversationId === Constants.NEW_CONVO &&
-      assistantListMap[EModelEndpoint.assistants] &&
-      assistantListMap[EModelEndpoint.azureAssistants]
-    ) {
-      const spec = getDefaultModelSpec(startupConfig);
-      logger.log('conversation', 'ChatRoute new convo, assistants effect', conversation);
-      newConversation({
-        modelsData: modelsQuery.data,
-        template: conversation ? conversation : undefined,
-        ...(spec ? { preset: getModelSpecPreset(spec) } : {}),
-      });
-      hasSetConversation.current = true;
-    } else if (
-      assistantListMap[EModelEndpoint.assistants] &&
-      assistantListMap[EModelEndpoint.azureAssistants]
-    ) {
-      logger.log('conversation', 'ChatRoute convo, assistants effect', initialConvoQuery.data);
-      newConversation({
-        template: initialConvoQuery.data,
-        preset: initialConvoQuery.data as TPreset,
+        preset: { ...initialConvoQuery.data, endpoint: 'terminal' as EModelEndpoint } as TPreset,
         modelsData: modelsQuery.data,
         keepLatestMessage: true,
       });
@@ -119,7 +101,6 @@ export default function ChatRoute() {
     initialConvoQuery.data,
     endpointsQuery.data,
     modelsQuery.data,
-    assistantListMap,
   ]);
 
   if (endpointsQuery.isLoading || modelsQuery.isLoading) {
@@ -147,16 +128,9 @@ export default function ChatRoute() {
     return null;
   }
 
-  // Check if this is a terminal session
-  const isTerminalSession = conversation?.endpointType === 'terminal' || conversation?.endpoint === 'claudeCode' || conversation?.endpoint === 'terminal';
-
   return (
     <ToolCallsMapProvider conversationId={conversation.conversationId ?? ''}>
-      {isTerminalSession ? (
-        <TerminalView index={index} />
-      ) : (
-        <ChatView index={index} />
-      )}
+      <TerminalView index={index} />
     </ToolCallsMapProvider>
   );
 }

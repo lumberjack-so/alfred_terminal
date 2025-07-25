@@ -15,10 +15,11 @@ import BookmarkPanel from '~/components/SidePanel/Bookmarks/BookmarkPanel';
 import MemoryViewer from '~/components/SidePanel/Memories/MemoryViewer';
 import PanelSwitch from '~/components/SidePanel/Builder/PanelSwitch';
 import PromptsAccordion from '~/components/Prompts/PromptsAccordion';
-import { Blocks, MCPIcon, AttachmentIcon, NocoIcon, N8NIcon, GhostIcon, CalIcon } from '~/components/svg';
+import { Blocks, MCPIcon, AttachmentIcon, NocoIcon, N8NIcon, GhostIcon, CalIcon, ClaudeCodeIcon } from '~/components/svg';
 import Parameters from '~/components/SidePanel/Parameters/Panel';
 import FilesPanel from '~/components/SidePanel/Files/Panel';
 import MCPPanel from '~/components/SidePanel/MCP/MCPPanel';
+import TerminalPanel from '~/components/SidePanel/Terminal/TerminalPanel';
 import { useGetStartupConfig } from '~/data-provider';
 import { useHasAccess } from '~/hooks';
 import SupabaseIcon from '~/components/svg/SupabaseIcon';
@@ -188,6 +189,15 @@ export default function useSideNavLinks({
     //   onClick: hidePanel,
     //   id: 'hide-panel',
     // });
+
+    // Add Claude Code terminal link
+    links.push({
+      title: 'com_sidepanel_claude_code',
+      label: '',
+      icon: ClaudeCodeIcon,
+      id: 'claude-code',
+      Component: TerminalPanel,
+    });
 
     // Add external links only if URLs are provided
     if (window.env?.NOCO_URL) {

@@ -119,6 +119,7 @@ const startServer = async () => {
   app.use('/api/memories', routes.memories);
   app.use('/api/tags', routes.tags);
   app.use('/api/mcp', routes.mcp);
+  app.use('/api/terminal', routes.terminal.router);
 
   // Add the error controller one more time after all routes
   app.use(errorController);
@@ -137,7 +138,7 @@ const startServer = async () => {
     res.send(updatedIndexHtml);
   });
 
-  app.listen(port, host, () => {
+  const server = app.listen(port, host, () => {
     if (host === '0.0.0.0') {
       logger.info(
         `Server listening on all interfaces at port ${port}. Use http://localhost:${port} to access it`,
@@ -148,6 +149,9 @@ const startServer = async () => {
 
     initializeMCP(app);
   });
+
+  // Set up WebSocket for terminal
+  routes.terminal.setupWebSocket(server);
 };
 
 startServer();
