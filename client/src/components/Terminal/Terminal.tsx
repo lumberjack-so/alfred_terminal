@@ -20,6 +20,9 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
   const fitAddonRef = useRef<FitAddon | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  
+  // Detect dark mode
+  const isDarkMode = document.documentElement.classList.contains('dark');
 
   const createSession = useCallback(async () => {
     try {
@@ -156,15 +159,15 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
       console.log('Initializing terminal for new conversation');
     }
 
-    // Initialize terminal
+    // Initialize terminal with theme-aware colors
     const term = new XTerm({
       theme: {
-        background: '#0d0d0d',
-        foreground: '#e4e4e7',
+        background: isDarkMode ? '#111827' : '#f9fafb', // dark:bg-gray-900 / bg-gray-50
+        foreground: isDarkMode ? '#e5e7eb' : '#1f2937', // dark:text-gray-200 / text-gray-800
         cursor: '#10b981',
-        cursorAccent: '#0d0d0d',
-        selectionBackground: '#374151',
-        selectionForeground: '#e4e4e7',
+        cursorAccent: isDarkMode ? '#111827' : '#f9fafb',
+        selectionBackground: isDarkMode ? '#374151' : '#e5e7eb',
+        selectionForeground: isDarkMode ? '#e5e7eb' : '#1f2937',
         black: '#000000',
         red: '#ef4444',
         green: '#10b981',
@@ -172,15 +175,15 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
         blue: '#3b82f6',
         magenta: '#a855f7',
         cyan: '#06b6d4',
-        white: '#e4e4e7',
-        brightBlack: '#52525b',
+        white: isDarkMode ? '#e5e7eb' : '#1f2937',
+        brightBlack: '#6b7280',
         brightRed: '#f87171',
         brightGreen: '#34d399',
         brightYellow: '#fbbf24',
         brightBlue: '#60a5fa',
         brightMagenta: '#c084fc',
         brightCyan: '#22d3ee',
-        brightWhite: '#f4f4f5',
+        brightWhite: isDarkMode ? '#f9fafb' : '#111827',
       },
       fontFamily: 'Menlo, Monaco, "Courier New", monospace',
       fontSize: 14,
@@ -258,7 +261,7 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
         xtermRef.current.dispose();
       }
     };
-  }, [conversationId, createSession, connectWebSocket, token]);
+  }, [conversationId, createSession, connectWebSocket, token, isDarkMode]);
 
   // Cleanup session on unmount
   useEffect(() => {

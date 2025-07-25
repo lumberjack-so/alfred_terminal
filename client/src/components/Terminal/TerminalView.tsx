@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { useOutletContext } from 'react-router-dom';
 import type { ContextType } from '~/common';
+import Presentation from '../Chat/Presentation';
 import { OpenSidebar } from '../Chat/Menus';
 import Terminal from './Terminal';
 import store from '~/store';
@@ -14,19 +15,10 @@ function TerminalView({ index = 0 }: { index?: number }) {
   const endpoint = conversation?.endpoint;
 
   return (
-    <div className="flex h-full w-full flex-col bg-white dark:bg-gray-800">
-      {/* Terminal Header */}
-      <div className="sticky top-0 z-10 flex h-14 w-full items-center justify-between border-b border-gray-200 bg-white p-2 dark:border-gray-600 dark:bg-gray-800">
-        <div className="flex items-center gap-3">
-          <div
-            className={`flex items-center transition-all duration-200 ease-in-out ${
-              !navVisible
-                ? 'translate-x-0 opacity-100'
-                : 'pointer-events-none translate-x-[-100px] opacity-0'
-            }`}
-          >
-            <OpenSidebar setNavVisible={setNavVisible} />
-          </div>
+    <Presentation>
+      <div className="flex h-full w-full flex-col">
+        {/* Terminal Header */}
+        <div className="sticky top-0 z-10 flex h-14 w-full items-center justify-between border-b border-gray-200 bg-white p-2 dark:border-gray-600 dark:bg-gray-800">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
               <svg
@@ -48,25 +40,25 @@ function TerminalView({ index = 0 }: { index?: number }) {
               Terminal Session
             </h1>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {conversationId ? `Session: ${conversationId.slice(-8)}` : 'No session'}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            {conversationId ? `Session: ${conversationId.slice(-8)}` : 'No session'}
-          </span>
-        </div>
-      </div>
 
-      {/* Terminal Container */}
-      <div className="relative flex-1 overflow-hidden bg-black">
-        <div className="absolute inset-0 m-4 rounded-lg bg-[#0d0d0d] shadow-xl">
-          <Terminal
-            conversationId={conversationId}
-            endpoint={endpoint}
-            className="h-full p-3"
-          />
+        {/* Terminal Container */}
+        <div className="relative flex-1 overflow-hidden bg-white dark:bg-gray-800">
+          <div className="absolute inset-0 m-4 rounded-lg bg-gray-50 dark:bg-gray-900 shadow-lg">
+            <Terminal
+              conversationId={conversationId}
+              endpoint={endpoint}
+              className="h-full p-3"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </Presentation>
   );
 }
 
