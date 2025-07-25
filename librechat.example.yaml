@@ -167,6 +167,7 @@ mcpServers:
       GHOST_API_URL: "${GHOST_API_URL}"
       GHOST_ADMIN_API_KEY: "${GHOST_ADMIN_API_KEY}"
       GHOST_CONTENT_API_KEY: "${GHOST_CONTENT_API_KEY}"
+      GHOST_API_VERSION: "v5.0"
   
   # Cal.com MCP Server
   calcom:
