@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MessageSquareQuote, ArrowRightToLine, Settings2, Database, Bookmark } from 'lucide-react';
 import {
   isAssistantsEndpoint,
@@ -19,7 +20,6 @@ import { Blocks, MCPIcon, AttachmentIcon, NocoIcon, N8NIcon, GhostIcon, CalIcon,
 import Parameters from '~/components/SidePanel/Parameters/Panel';
 import FilesPanel from '~/components/SidePanel/Files/Panel';
 import MCPPanel from '~/components/SidePanel/MCP/MCPPanel';
-import TerminalPanel from '~/components/SidePanel/Terminal/TerminalPanel';
 import { useGetStartupConfig } from '~/data-provider';
 import { useHasAccess } from '~/hooks';
 import SupabaseIcon from '~/components/svg/SupabaseIcon';
@@ -36,6 +36,7 @@ declare global {
     };
   }
 }
+
 
 export default function useSideNavLinks({
   hidePanel,
@@ -77,6 +78,8 @@ export default function useSideNavLinks({
     permission: Permissions.CREATE,
   });
   const { data: startupConfig } = useGetStartupConfig();
+  const navigate = useNavigate();
+  const { newConversation } = useNewConvo();
 
   const Links = useMemo(() => {
     const links: NavLink[] = [];
@@ -196,7 +199,10 @@ export default function useSideNavLinks({
       label: '',
       icon: ClaudeCodeIcon,
       id: 'claude-code',
-      Component: TerminalPanel,
+      onClick: () => {
+        // Navigate to the terminal route directly
+        navigate('/terminal/new');
+      },
     });
 
     // Add external links only if URLs are provided
@@ -287,6 +293,7 @@ export default function useSideNavLinks({
     hasAccessToCreateAgents,
     hidePanel,
     startupConfig,
+    navigate,
   ]);
 
   return Links;
