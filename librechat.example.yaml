@@ -149,19 +149,17 @@ actions:
 
 # Example MCP Servers Object Structure 
 mcpServers:
-  # n8n MCP Server (Local - No OAuth required)
   n8n:
     type: streamable-http
     url: "https://server.smithery.ai/@guinness77/n8n-mcp-server/mcp"
     params:
       api_key: "${SMITHERY_API_KEY}"
       profile: "${SMITHERY_PROFILE}"
-      n8nApiUrl: "${N8N_URL}" 
-      n8nApiKey: "${N8N_API_KEY}"
+      url: "${N8N_URL}" 
+      apiKey: "${N8N_API_KEY}"
     timeout: 30000
     initTimeout: 10000
   
-  # Ghost CMS MCP Server
   ghost:
     type: streamable-http
     url: "https://server.smithery.ai/@MFYDev/ghost-mcp/mcp"
