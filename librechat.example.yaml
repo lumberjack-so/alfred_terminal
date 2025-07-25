@@ -150,14 +150,14 @@ actions:
 # Example MCP Servers Object Structure 
 mcpServers:
   n8n:
-    type: stdio
-    command: "n8n-mcp"  # Direct command, no npx
-    args: []
-    env:
-      MCP_MODE: "stdio"
-      LOG_LEVEL: "info"  # Set to info for debugging
-      N8N_API_URL: "${N8N_URL}"
-      N8N_API_KEY: "${N8N_API_KEY}"
+      type: stdio
+      command: "node"
+      args: ["/opt/n8n-mcp/dist/mcp/index.js"]
+      env:
+        MCP_MODE: "stdio"
+        LOG_LEVEL: "info"
+        N8N_API_URL: "${N8N_URL}"
+        N8N_API_KEY: "${N8N_API_KEY}"
 
   n8n-mcp:
     type: streamable-http
