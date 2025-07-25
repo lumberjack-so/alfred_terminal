@@ -49,7 +49,7 @@ function TerminalView({ index = 0 }: { index?: number }) {
 
         {/* Terminal Container */}
         <div className="relative flex-1 overflow-hidden bg-white dark:bg-gray-800">
-          <div className="absolute inset-0 m-4 rounded-lg bg-gray-50 dark:bg-gray-900 shadow-lg">
+          <div className="absolute inset-0 m-4 rounded-lg bg-gray-200 dark:bg-gray-700 shadow-lg">
             <Terminal
               conversationId={conversationId}
               endpoint={endpoint}

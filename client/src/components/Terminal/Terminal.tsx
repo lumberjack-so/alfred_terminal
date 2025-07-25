@@ -162,7 +162,7 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
     // Initialize terminal with theme-aware colors
     const term = new XTerm({
       theme: {
-        background: isDarkMode ? '#111827' : '#f9fafb', // dark:bg-gray-900 / bg-gray-50
+        background: isDarkMode ? '#374151' : '#e5e7eb', // dark:bg-gray-700 / bg-gray-200 (light grey)
         foreground: isDarkMode ? '#e5e7eb' : '#1f2937', // dark:text-gray-200 / text-gray-800
         cursor: '#10b981',
         cursorAccent: isDarkMode ? '#111827' : '#f9fafb',
