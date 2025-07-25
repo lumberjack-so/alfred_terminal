@@ -55,14 +55,18 @@ RUN \
     npm prune --production; \
     npm cache clean --force
 
-# Copy the env template file and entrypoint
+# Copy the env template file and entrypoint scripts
 COPY --chown=node:node client/public/env.template.js /app/client/dist/env.template.js
 COPY --chown=node:node entrypoint.sh /entrypoint.sh
+COPY --chown=node:node docker-entrypoint.sh /docker-entrypoint.sh
 COPY --chown=node:node railway-alfredos-start.sh /railway-alfredos-start.sh
+COPY --chown=node:node railway-build.sh /railway-build.sh
+COPY --chown=node:node railway-start-production.sh /railway-start-production.sh
+COPY --chown=node:node debug-packages.sh /debug-packages.sh
 
 # Switch to root to set executable permissions, then switch back
 USER root
-RUN chmod +x /entrypoint.sh /railway-alfredos-start.sh
+RUN chmod +x /entrypoint.sh /docker-entrypoint.sh /railway-alfredos-start.sh /railway-build.sh /railway-start-production.sh /debug-packages.sh
 USER node
 
 RUN mkdir -p /app/client/public/images /app/api/logs
@@ -71,8 +75,8 @@ RUN mkdir -p /app/client/public/images /app/api/logs
 EXPOSE 3080
 ENV HOST=0.0.0.0
 
-# Use entrypoint to inject env vars at runtime
-ENTRYPOINT ["/entrypoint.sh"]
+# Use docker-entrypoint to ensure packages are linked
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["npm", "run", "backend"]
 
 # Optional: for client with nginx routing

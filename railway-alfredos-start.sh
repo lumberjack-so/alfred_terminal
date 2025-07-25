@@ -37,5 +37,5 @@ echo "   - Your persistent config: $CONFIG_FILE"
 echo "   - Smithery writes to: /app/librechat.yaml (symlink)"
 echo "🔧 Your MCP server configurations will persist across restarts!"
 
-# Run the original entrypoint with backend
-exec /entrypoint.sh npm run backend 
+# Run docker-entrypoint which handles package verification and then the original entrypoint
+exec /docker-entrypoint.sh /entrypoint.sh npm run backend 
