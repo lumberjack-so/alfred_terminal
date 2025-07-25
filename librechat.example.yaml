@@ -152,7 +152,7 @@ mcpServers:
   # n8n MCP Server (Local - No OAuth required)
   n8n:
     type: streamable-http
-    url: "https://server.smithery.ai/@MFYDev/ghost-mcp/mcp"
+    url: "https://server.smithery.ai/@guinness77/n8n-mcp-server/mcp"
     params:
       api_key: "${SMITHERY_API_KEY}"
       profile: "${SMITHERY_PROFILE}"
