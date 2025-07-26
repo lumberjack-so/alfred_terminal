@@ -103,7 +103,7 @@ export default function Conversation({
     if (ctrlOrMetaKey) {
       toggleNav();
       const baseUrl = window.location.origin;
-      const path = `/c/${conversationId}`;
+      const path = conversation.sessionType === 'terminal' ? `/terminal/${conversationId}` : `/c/${conversationId}`;
       window.open(baseUrl + path, '_blank');
       return;
     }
@@ -177,12 +177,31 @@ export default function Conversation({
           isSmallScreen={isSmallScreen}
           localize={localize}
         >
-          <EndpointIcon
-            conversation={conversation}
-            endpointsConfig={endpointsConfig}
-            size={20}
-            context="menu-item"
-          />
+          {conversation.sessionType === 'terminal' ? (
+            <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-text-secondary"
+              >
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
+              </svg>
+            </div>
+          ) : (
+            <EndpointIcon
+              conversation={conversation}
+              endpointsConfig={endpointsConfig}
+              size={20}
+              context="menu-item"
+            />
+          )}
         </ConvoLink>
       )}
       <div

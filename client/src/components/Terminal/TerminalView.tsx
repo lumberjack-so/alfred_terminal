@@ -20,6 +20,9 @@ function TerminalView({ index = 0 }: { index?: number }) {
         {/* Terminal Header */}
         <div className="sticky top-0 z-10 flex h-14 w-full items-center justify-between border-b border-gray-200 bg-white p-2 dark:border-gray-600 dark:bg-gray-800">
           <div className="flex items-center gap-2">
+            {!navVisible && (
+              <OpenSidebar setNavVisible={setNavVisible} />
+            )}
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
               <svg
                 width="16"
@@ -49,7 +52,7 @@ function TerminalView({ index = 0 }: { index?: number }) {
 
         {/* Terminal Container */}
         <div className="relative flex-1 overflow-hidden bg-white dark:bg-gray-800">
-          <div className="absolute inset-0 m-4 rounded-lg shadow-lg" style={{ backgroundColor: 'rgba(66, 66, 66, 1)' }}>
+          <div className="absolute inset-0 m-4 rounded-lg shadow-lg" style={{ backgroundColor: 'rgba(33, 33, 33, 1)' }}>
             <Terminal
               conversationId={conversationId}
               endpoint={endpoint}

@@ -31,6 +31,47 @@ const LoadingSpinner = memo(() => {
 
 const DateLabel: FC<{ groupName: string }> = memo(({ groupName }) => {
   const localize = useLocalize();
+  const isSectionHeader = groupName === 'Chat Sessions' || groupName === 'Terminal Sessions';
+  
+  if (isSectionHeader) {
+    return (
+      <div className="mt-4 mb-2 flex items-center gap-2 px-2 text-sm font-semibold text-text-primary">
+        {groupName === 'Terminal Sessions' && (
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-text-secondary"
+          >
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+        )}
+        {groupName === 'Chat Sessions' && (
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-text-secondary"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        )}
+        {groupName}
+      </div>
+    );
+  }
+  
   return (
     <div className="mt-2 pl-2 pt-1 text-text-secondary" style={{ fontSize: '0.7rem' }}>
       {localize(groupName as TranslationKeys) || groupName}
@@ -93,9 +134,24 @@ const Conversations: FC<ConversationsProps> = ({
     [rawConversations],
   );
 
-  const groupedConversations = useMemo(
-    () => groupConversationsByDate(filteredConversations),
-    [filteredConversations],
+  // Separate chat and terminal sessions
+  const { chatSessions, terminalSessions } = useMemo(() => {
+    const chats = filteredConversations.filter(c => !c.sessionType || c.sessionType === 'chat');
+    const terminals = filteredConversations.filter(c => c.sessionType === 'terminal');
+    return {
+      chatSessions: chats,
+      terminalSessions: terminals
+    };
+  }, [filteredConversations]);
+
+  const groupedChatSessions = useMemo(
+    () => groupConversationsByDate(chatSessions),
+    [chatSessions],
+  );
+
+  const groupedTerminalSessions = useMemo(
+    () => groupConversationsByDate(terminalSessions),
+    [terminalSessions],
   );
 
   const firstTodayConvoId = useMemo(
@@ -107,16 +163,34 @@ const Conversations: FC<ConversationsProps> = ({
 
   const flattenedItems = useMemo(() => {
     const items: FlattenedItem[] = [];
-    groupedConversations.forEach(([groupName, convos]) => {
-      items.push({ type: 'header', groupName });
-      items.push(...convos.map((convo) => ({ type: 'convo' as const, convo })));
-    });
+    
+    // Add Chat Sessions section
+    if (chatSessions.length > 0) {
+      items.push({ type: 'header', groupName: 'Chat Sessions' });
+      groupedChatSessions.forEach(([groupName, convos]) => {
+        items.push({ type: 'header', groupName });
+        items.push(...convos.map((convo) => ({ type: 'convo' as const, convo })));
+      });
+    }
+
+    // Add Terminal Sessions section
+    if (terminalSessions.length > 0) {
+      if (items.length > 0) {
+        // Add spacing between sections
+        items.push({ type: 'header', groupName: ' ' });
+      }
+      items.push({ type: 'header', groupName: 'Terminal Sessions' });
+      groupedTerminalSessions.forEach(([groupName, convos]) => {
+        items.push({ type: 'header', groupName });
+        items.push(...convos.map((convo) => ({ type: 'convo' as const, convo })));
+      });
+    }
 
     if (isLoading) {
       items.push({ type: 'loading' } as any);
     }
     return items;
-  }, [groupedConversations, isLoading]);
+  }, [chatSessions, terminalSessions, groupedChatSessions, groupedTerminalSessions, isLoading]);
 
   const cache = useMemo(
     () =>

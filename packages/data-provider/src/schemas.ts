@@ -596,6 +596,7 @@ export const tConversationSchema = z.object({
   conversationId: z.string().nullable(),
   endpoint: eModelEndpointSchema.nullable(),
   endpointType: eModelEndpointSchema.nullable().optional(),
+  sessionType: z.enum(['chat', 'terminal']).default('chat').optional(),
   isArchived: z.boolean().optional(),
   title: z.string().nullable().or(z.literal('New Chat')).default('New Chat'),
   user: z.string().optional(),
@@ -793,6 +794,7 @@ export type TSetOption = (
 export type TConversation = z.infer<typeof tConversationSchema> & {
   presetOverride?: Partial<TPreset>;
   disableParams?: boolean;
+  sessionType?: 'chat' | 'terminal';
 };
 
 export const tSharedLinkSchema = z.object({

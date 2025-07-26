@@ -67,28 +67,22 @@ export default function TerminalRoute() {
 
     if (conversationId === Constants.NEW_CONVO && endpointsQuery.data && modelsQuery.data) {
       // Create a new terminal conversation with the terminal endpoint
-      const terminalPreset: TPreset = {
-        endpoint: 'terminal' as EModelEndpoint,
-        model: 'terminal',
-        title: 'Terminal Session',
-        presetId: '',
-      };
-      
       logger.log('conversation', 'TerminalRoute, new terminal session', conversation);
       newConversation({
         modelsData: modelsQuery.data,
-        template: conversation ? { ...conversation, endpoint: 'terminal' as EModelEndpoint } : undefined,
-        preset: terminalPreset,
+        template: { 
+          sessionType: 'terminal',
+          title: 'Terminal Session',
+          endpoint: null,
+        },
       });
 
       hasSetConversation.current = true;
     } else if (initialConvoQuery.data && endpointsQuery.data && modelsQuery.data) {
       logger.log('conversation', 'TerminalRoute initialConvoQuery', initialConvoQuery.data);
-      // Ensure existing conversation is loaded with terminal endpoint
+      // Ensure existing conversation is loaded with terminal session type
       newConversation({
-        template: { ...initialConvoQuery.data, endpoint: 'terminal' as EModelEndpoint },
-        /* this is necessary to load all existing settings */
-        preset: { ...initialConvoQuery.data, endpoint: 'terminal' as EModelEndpoint } as TPreset,
+        template: { ...initialConvoQuery.data, sessionType: 'terminal' },
         modelsData: modelsQuery.data,
         keepLatestMessage: true,
       });

@@ -25,12 +25,14 @@ const useNavigateToConvo = (index = 0) => {
       );
       logger.log('conversation', 'Fetched fresh conversation data', data);
       setConversation(data);
-      navigate(`/c/${conversationId ?? Constants.NEW_CONVO}`, { state: { focusChat: true } });
+      const path = data?.sessionType === 'terminal' ? `/terminal/${conversationId ?? Constants.NEW_CONVO}` : `/c/${conversationId ?? Constants.NEW_CONVO}`;
+      navigate(path, { state: { focusChat: true } });
     } catch (error) {
       console.error('Error fetching conversation data on navigation', error);
       if (conversation) {
         setConversation(conversation as TConversation);
-        navigate(`/c/${conversationId}`, { state: { focusChat: true } });
+        const path = conversation.sessionType === 'terminal' ? `/terminal/${conversationId}` : `/c/${conversationId}`;
+        navigate(path, { state: { focusChat: true } });
       }
     }
   };
@@ -85,7 +87,8 @@ const useNavigateToConvo = (index = 0) => {
       fetchFreshData(convo);
     } else {
       setConversation(convo);
-      navigate(`/c/${convo.conversationId ?? Constants.NEW_CONVO}`, { state: { focusChat: true } });
+      const path = convo.sessionType === 'terminal' ? `/terminal/${convo.conversationId ?? Constants.NEW_CONVO}` : `/c/${convo.conversationId ?? Constants.NEW_CONVO}`;
+      navigate(path, { state: { focusChat: true } });
     }
   };
 

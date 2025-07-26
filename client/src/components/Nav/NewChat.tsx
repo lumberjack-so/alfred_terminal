@@ -50,6 +50,22 @@ export default function NewChat({
     [queryClient, conversation, newConvo, navigate, toggleNav, isSmallScreen],
   );
 
+  const newTerminalHandler: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    (e) => {
+      if (e.button === 0 && (e.ctrlKey || e.metaKey)) {
+        window.open('/terminal/new', '_blank');
+        return;
+      }
+      // Create a new terminal session
+      newConvo({ template: { sessionType: 'terminal', title: 'New Terminal' } });
+      navigate('/terminal/new', { state: { focusTerminal: true } });
+      if (isSmallScreen) {
+        toggleNav();
+      }
+    },
+    [newConvo, navigate, toggleNav, isSmallScreen],
+  );
+
   return (
     <>
       <div className="flex items-center justify-between py-[2px] md:py-2">
@@ -83,6 +99,32 @@ export default function NewChat({
                 onClick={clickHandler}
               >
                 <NewChatIcon className="icon-md md:h-6 md:w-6" />
+              </Button>
+            }
+          />
+          <TooltipAnchor
+            description="New Terminal Session"
+            render={
+              <Button
+                size="icon"
+                variant="outline"
+                data-testid="nav-new-terminal-button"
+                aria-label="New Terminal Session"
+                className="rounded-full border-none bg-transparent p-2 hover:bg-surface-hover md:rounded-xl"
+                onClick={newTerminalHandler}
+              >
+                <svg
+                  className="icon-md md:h-6 md:w-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="4 17 10 11 4 5"></polyline>
+                  <line x1="12" y1="19" x2="20" y2="19"></line>
+                </svg>
               </Button>
             }
           />
