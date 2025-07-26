@@ -193,7 +193,7 @@ export default function useSideNavLinks({
     //   id: 'hide-panel',
     // });
 
-    // Add Claude Code terminal link
+    // Add Terminal link
     links.push({
       title: 'com_sidepanel_claude_code',
       label: '',

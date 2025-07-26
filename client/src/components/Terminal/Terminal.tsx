@@ -245,7 +245,7 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
 
     // Display initial message
     term.write('\x1b[1;34m╔══════════════════════════════════════════════════════════╗\x1b[0m\r\n');
-    term.write('\x1b[1;34m║\x1b[0m  \x1b[1;32mClaude Code Terminal\x1b[0m - Powered by LibreChat         \x1b[1;34m║\x1b[0m\r\n');
+    term.write('\x1b[1;34m║\x1b[0m  \x1b[1;32mWelcome to AlfredOS Terminal\x1b[0m                          \x1b[1;34m║\x1b[0m\r\n');
     term.write('\x1b[1;34m╚══════════════════════════════════════════════════════════╝\x1b[0m\r\n');
     term.write('\r\n\x1b[33mCreating terminal session...\x1b[0m\r\n');
     
