@@ -199,11 +199,16 @@ function setupWebSocket(server) {
     ws.on('message', async (message) => {
       try {
         const data = JSON.parse(message);
+        logger.debug(`[Terminal] Received WebSocket message:`, { type: data.type, command: data.command?.substring(0, 20) });
         
         switch (data.type) {
           case 'command':
             // Handle raw terminal input (keystrokes)
-            await session.handleInput(data.command);
+            if (session && session.handleInput) {
+              await session.handleInput(data.command);
+            } else {
+              logger.error('[Terminal] Session or handleInput not available');
+            }
             break;
           
           case 'resize':

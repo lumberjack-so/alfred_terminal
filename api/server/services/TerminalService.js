@@ -372,7 +372,7 @@ class TerminalSession extends EventEmitter {
 
   async handleInput(data) {
     // Handle raw terminal input (keystrokes)
-    logger.debug(`[TerminalService] handleInput called with: '${data}', length: ${data.length}, fallbackMode: ${this.fallbackMode}`);
+    logger.info(`[TerminalService] handleInput called with: '${data}', length: ${data.length}, fallbackMode: ${this.fallbackMode}, hasShell: ${!!this.shell}`);
     
     if (this.fallbackMode) {
       // In fallback mode, we need to handle line buffering ourselves
@@ -392,7 +392,7 @@ class TerminalSession extends EventEmitter {
               this.emit('output', '$ ');
             }, 100);
           } else {
-            this.emit('output', '\n');
+            this.emit('output', '\n$ ');
           }
         } else if (code === 127 || code === 8) { // Backspace
           if (this.inputBuffer.length > 0) {
@@ -406,21 +406,31 @@ class TerminalSession extends EventEmitter {
         } else if (code >= 32 && code < 127) { // Printable characters
           this.inputBuffer += char;
           // Echo the character
-          logger.debug(`[TerminalService] Echoing character: '${char}' (code: ${code})`);
+          logger.info(`[TerminalService] Echoing character: '${char}' (code: ${code})`);
           this.emit('output', char);
         }
       }
     } else if (this.shell && !this.shell.killed) {
       // In interactive mode, pass input directly to shell
       try {
+        logger.info('[TerminalService] Writing to shell stdin:', data);
         this.shell.stdin.write(data);
       } catch (error) {
         logger.error('[TerminalService] Error writing to shell:', error);
         // Switch to fallback mode
         this.fallbackMode = true;
         this.shell = null;
-        this.emit('output', '\n\x1b[33mSwitched to fallback mode\x1b[0m\n');
+        this.emit('output', '\n\x1b[33mSwitched to fallback mode\x1b[0m\n$ ');
+        // Retry handling the input in fallback mode
+        await this.handleInput(data);
       }
+    } else {
+      // No shell available, switch to fallback mode
+      logger.warn('[TerminalService] No shell available, switching to fallback mode');
+      this.fallbackMode = true;
+      this.emit('output', '\x1b[33mTerminal in fallback mode\x1b[0m\n$ ');
+      // Retry handling the input in fallback mode
+      await this.handleInput(data);
     }
   }
 
