@@ -6,6 +6,8 @@ FROM node:20-alpine AS node
 # Install jemalloc and gettext (for envsubst)
 RUN apk add --no-cache jemalloc gettext
 RUN apk add --no-cache python3 py3-pip uv
+# Install bash and other tools for terminal functionality
+RUN apk add --no-cache bash coreutils
 
 # Set environment variable to use jemalloc
 ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2

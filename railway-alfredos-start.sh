@@ -3,6 +3,20 @@
 # AlfredOS LibreChat Railway Startup Script
 echo "🚀 Starting AlfredOS LibreChat..."
 
+# Debug shell availability
+echo "📍 Shell environment check:"
+echo "  - Current shell: $0"
+echo "  - SHELL env var: $SHELL"
+echo "  - Available shells:"
+for shell in /bin/sh /bin/ash /bin/bash /usr/bin/sh /usr/bin/bash; do
+    if [ -f "$shell" ]; then
+        echo "    ✓ $shell exists"
+    fi
+done
+echo "  - User: $(whoami)"
+echo "  - Home: $HOME"
+echo "  - PATH: $PATH"
+
 # Configuration
 CONFIG_DIR="/app/config"
 CONFIG_FILE="$CONFIG_DIR/librechat.yaml"

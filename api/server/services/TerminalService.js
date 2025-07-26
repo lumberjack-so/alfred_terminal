@@ -9,7 +9,9 @@ const logger = require('~/config/winston');
 const ALLOWED_COMMANDS = [
   'ls', 'dir', 'pwd', 'cd', 'echo', 'cat', 'type', 'mkdir', 'touch', 
   'rm', 'del', 'cp', 'copy', 'mv', 'move', 'node', 'npm', 'yarn',
-  'git', 'python', 'pip', 'clear', 'cls'
+  'git', 'python', 'pip', 'clear', 'cls', 'sh', 'bash', 'which',
+  'env', 'export', 'whoami', 'hostname', 'uname', 'date', 'ps',
+  'grep', 'find', 'head', 'tail', 'less', 'more', 'vi', 'nano'
 ];
 
 // Windows command mappings
@@ -36,18 +38,30 @@ class TerminalSession extends EventEmitter {
     this.isWindows = process.platform === 'win32';
     this.commandQueue = [];
     this.isProcessing = false;
+    this.fallbackMode = false; // Track if we're in fallback mode
   }
 
   async initialize() {
     try {
       // Ensure base directory exists
       logger.info(`[TerminalService] Creating directory: ${this.baseDir}`);
-      await fs.mkdir(this.baseDir, { recursive: true });
+      await fs.mkdir(this.baseDir, { recursive: true, mode: 0o755 });
       
-      // Verify directory was created
-      const stats = await fs.stat(this.baseDir);
-      if (!stats.isDirectory()) {
-        throw new Error('Failed to create base directory');
+      // Verify directory was created and check permissions
+      try {
+        const stats = await fs.stat(this.baseDir);
+        if (!stats.isDirectory()) {
+          throw new Error('Failed to create base directory');
+        }
+        
+        // Test write permissions
+        const testFile = path.join(this.baseDir, '.test-write');
+        await fs.writeFile(testFile, 'test');
+        await fs.unlink(testFile);
+        logger.info('[TerminalService] Directory created with write permissions');
+      } catch (err) {
+        logger.error('[TerminalService] Directory permission error:', err);
+        throw new Error(`Directory permission error: ${err.message}`);
       }
       
       logger.info(`[TerminalService] Initializing shell for platform: ${process.platform}`);
@@ -60,31 +74,102 @@ class TerminalSession extends EventEmitter {
           shell: true
         });
       } else {
-        // Use /bin/sh for Alpine Linux compatibility
-        const shellPath = process.env.SHELL || '/bin/sh';
+        // Try to find a suitable shell - prefer bash if available
+        let shellPath = process.env.SHELL || '/bin/sh';
+        
+        // Check if bash is available
+        try {
+          const bashExists = await fs.access('/bin/bash').then(() => true).catch(() => false);
+          if (bashExists) {
+            shellPath = '/bin/bash';
+          }
+        } catch (e) {
+          // Ignore error, use default shell
+        }
+        
         logger.info(`[TerminalService] Using shell: ${shellPath}`);
         
         try {
-          this.shell = spawn(shellPath, ['-i'], {
+          // Log detailed spawn attempt
+          logger.info('[TerminalService] Attempting to spawn shell with:', {
+            shellPath,
             cwd: this.currentDir,
-            env: { ...process.env, PS1: '\\w$ ', TERM: 'xterm-256color' },
-            stdio: ['pipe', 'pipe', 'pipe']
+            platform: process.platform,
+            env: {
+              PATH: process.env.PATH,
+              SHELL: process.env.SHELL,
+              USER: process.env.USER,
+              HOME: process.env.HOME
+            }
           });
+          
+          // For Alpine/ash shell, use simpler options
+          const shellArgs = shellPath.includes('sh') ? [] : ['-i'];
+          
+          this.shell = spawn(shellPath, shellArgs, {
+            cwd: this.currentDir,
+            env: { 
+              ...process.env, 
+              PS1: '$ ', // Simpler prompt for ash
+              TERM: 'xterm',
+              PATH: process.env.PATH || '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+            },
+            stdio: ['pipe', 'pipe', 'pipe'],
+            shell: false,
+            detached: false
+          });
+          
+          // Check if spawn was successful
+          if (!this.shell) {
+            throw new Error('spawn returned null');
+          }
+          
+          // Give it a moment to fail if it's going to
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          
+          if (!this.shell.pid) {
+            throw new Error('Shell process has no PID');
+          }
+          
+          logger.info('[TerminalService] Shell spawned successfully with PID:', this.shell.pid);
+          
+          // Listen for immediate errors
+          this.shell.once('error', (err) => {
+            logger.error('[TerminalService] Shell runtime error:', {
+              code: err.code,
+              message: err.message,
+              syscall: err.syscall,
+              path: err.path
+            });
+            this.emit('error', `Terminal error: ${err.code || err.message}`);
+          });
+          
         } catch (spawnError) {
-          logger.error('[TerminalService] Failed to spawn shell:', spawnError);
-          this.emit('error', `Failed to start terminal: ${spawnError.message}`);
-          return false;
+          logger.error('[TerminalService] Spawn failed with details:', {
+            name: spawnError.name,
+            message: spawnError.message,
+            code: spawnError.code,
+            syscall: spawnError.syscall,
+            path: spawnError.path,
+            stack: spawnError.stack
+          });
+          // Try fallback mode
+          logger.warn('[TerminalService] Falling back to exec mode');
+          this.fallbackMode = true;
+          this.shell = null;
+          
+          // Still emit success but note we're in fallback mode
+          this.emit('output', `Terminal initialized in fallback mode\n`);
+          this.emit('output', `Working directory: ${this.currentDir}\n`);
+          this.emit('output', `Note: Using command execution mode (non-interactive)\n\n`);
+          
+          return true;
         }
       }
 
-      // Check if shell was created successfully
-      if (!this.shell || !this.shell.pid) {
-        logger.error('[TerminalService] Shell process failed to start');
-        this.emit('error', 'Failed to start terminal shell');
-        return false;
+      if (!this.fallbackMode) {
+        this.setupShellHandlers();
       }
-
-      this.setupShellHandlers();
       
       // Send initial directory
       this.emit('output', `Terminal initialized in ${this.currentDir}\n`);
@@ -168,11 +253,19 @@ class TerminalSession extends EventEmitter {
       : trimmedCommand;
 
     // Execute command
-    if (this.shell && !this.shell.killed) {
-      this.shell.stdin.write(actualCommand + '\n');
-    } else {
-      // Fallback to exec if shell is not available
+    if (this.fallbackMode || !this.shell || this.shell.killed) {
+      // Use exec for fallback mode or when shell is not available
+      logger.debug('[TerminalService] Using exec for command:', actualCommand);
       this.executeWithExec(actualCommand);
+    } else {
+      // Try to use interactive shell
+      try {
+        this.shell.stdin.write(actualCommand + '\n');
+      } catch (writeError) {
+        logger.error('[TerminalService] Error writing to shell stdin:', writeError);
+        // Fallback to exec
+        this.executeWithExec(actualCommand);
+      }
     }
   }
 
