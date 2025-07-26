@@ -163,6 +163,12 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
   useEffect(() => {
     if (!terminalRef.current) return;
     
+    // Prevent multiple initializations
+    if (xtermRef.current) {
+      console.log('[Terminal] Terminal already initialized, skipping');
+      return;
+    }
+    
     // For terminal sessions, we always need to create a session, even for new conversations
     const isValidConversation = conversationId && conversationId !== Constants.NEW_CONVO;
     if (!isValidConversation) {
@@ -215,7 +221,23 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
 
     // Open terminal in the DOM
     term.open(terminalRef.current);
-    fitAddon.fit();
+    
+    // Delay fit to ensure DOM is ready
+    setTimeout(() => {
+      if (fitAddonRef.current && terminalRef.current) {
+        try {
+          fitAddonRef.current.fit();
+        } catch (error) {
+          console.error('[Terminal] Error fitting terminal:', error);
+          // Try again after a longer delay
+          setTimeout(() => {
+            if (fitAddonRef.current) {
+              fitAddonRef.current.fit();
+            }
+          }, 500);
+        }
+      }
+    }, 100);
 
     // Display initial message
     term.write('\x1b[1;34m╔══════════════════════════════════════════════════════════╗\x1b[0m\r\n');
@@ -270,9 +292,18 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
       window.removeEventListener('resize', handleResize);
       if (wsRef.current) {
         wsRef.current.close();
+        wsRef.current = null;
       }
       if (xtermRef.current) {
-        xtermRef.current.dispose();
+        try {
+          xtermRef.current.dispose();
+        } catch (error) {
+          console.error('[Terminal] Error disposing terminal:', error);
+        }
+        xtermRef.current = null;
+      }
+      if (fitAddonRef.current) {
+        fitAddonRef.current = null;
       }
     };
   }, [conversationId, createSession, connectWebSocket, token, isDarkMode]);
@@ -293,18 +324,30 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
 
   // Handle resize when parent container changes
   useEffect(() => {
+    if (!terminalRef.current) return;
+    
     const resizeObserver = new ResizeObserver(() => {
-      if (fitAddonRef.current) {
-        fitAddonRef.current.fit();
+      if (fitAddonRef.current && xtermRef.current) {
+        try {
+          fitAddonRef.current.fit();
+        } catch (error) {
+          console.error('[Terminal] Error during resize:', error);
+        }
       }
     });
 
-    if (terminalRef.current) {
+    try {
       resizeObserver.observe(terminalRef.current);
+    } catch (error) {
+      console.error('[Terminal] Error observing resize:', error);
     }
 
     return () => {
-      resizeObserver.disconnect();
+      try {
+        resizeObserver.disconnect();
+      } catch (error) {
+        console.error('[Terminal] Error disconnecting resize observer:', error);
+      }
     };
   }, []);
 
@@ -315,6 +358,7 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
         'h-full w-full overflow-hidden',
         className
       )}
+      style={{ minHeight: '400px', minWidth: '600px' }}
     />
   );
 }
