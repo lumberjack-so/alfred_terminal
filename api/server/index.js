@@ -148,10 +148,16 @@ const startServer = async () => {
     }
 
     initializeMCP(app);
+    
+    // Set up WebSocket for terminal
+    logger.info('[Terminal] Initializing WebSocket server...');
+    routes.terminal.setupWebSocket(server);
   });
 
-  // Set up WebSocket for terminal
-  routes.terminal.setupWebSocket(server);
+  // Handle WebSocket upgrade for Railway/proxy compatibility
+  server.on('upgrade', (request, socket, head) => {
+    logger.info('[Terminal] Upgrade request received for:', request.url);
+  });
 };
 
 startServer();

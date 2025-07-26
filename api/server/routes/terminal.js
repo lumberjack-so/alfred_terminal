@@ -9,8 +9,11 @@ const router = express.Router();
 // REST endpoints
 router.post('/create', requireJwtAuth, async (req, res) => {
   try {
+    logger.info('[Terminal] Creating session for user:', req.user.id);
     const userId = req.user.id;
     const { sessionId, session } = await TerminalService.createSession(userId);
+    
+    logger.info('[Terminal] Session created successfully:', { sessionId, userId });
     
     res.json({
       sessionId,
@@ -19,7 +22,10 @@ router.post('/create', requireJwtAuth, async (req, res) => {
     });
   } catch (error) {
     logger.error('[Terminal] Error creating session:', error);
-    res.status(500).json({ error: 'Failed to create terminal session' });
+    res.status(500).json({ 
+      error: 'Failed to create terminal session',
+      details: error.message 
+    });
   }
 });
 
@@ -70,13 +76,30 @@ router.get('/history/:sessionId', requireJwtAuth, async (req, res) => {
 
 // WebSocket handler setup function
 function setupWebSocket(server) {
+  logger.info('[Terminal] Setting up WebSocket server');
+  
   const wss = new WebSocket.Server({ 
     server,
     path: '/api/terminal/ws',
+    perMessageDeflate: false, // Disable compression for better compatibility
+    clientTracking: true,
     verifyClient: (info, cb) => {
+      // Log connection attempt
+      logger.info('[Terminal] WebSocket verify client:', {
+        url: info.req.url,
+        headers: info.req.headers['x-forwarded-for'] || info.req.connection.remoteAddress
+      });
       // Allow all connections for now, authentication will be handled per-message
       cb(true);
     }
+  });
+
+  wss.on('error', (error) => {
+    logger.error('[Terminal] WebSocket server error:', error);
+  });
+
+  wss.on('listening', () => {
+    logger.info('[Terminal] WebSocket server is listening on path /api/terminal/ws');
   });
 
   wss.on('connection', async (ws, req) => {
@@ -84,7 +107,10 @@ function setupWebSocket(server) {
     let session = null;
     let userId = null;
 
-    logger.info('[Terminal] New WebSocket connection attempt');
+    logger.info('[Terminal] New WebSocket connection established', {
+      url: req.url,
+      headers: req.headers
+    });
 
     // Parse session ID from query string
     const url = new URL(req.url, `http://${req.headers.host}`);
@@ -188,6 +214,7 @@ function setupWebSocket(server) {
     }));
   });
 
+  logger.info('[Terminal] WebSocket server setup complete');
   return wss;
 }
 
