@@ -39,6 +39,8 @@ class TerminalSession extends EventEmitter {
     this.commandQueue = [];
     this.isProcessing = false;
     this.fallbackMode = false; // Track if we're in fallback mode
+    this.inputBuffer = ''; // Buffer for accumulating input
+    this.localEcho = true; // Whether to echo input back
   }
 
   async initialize() {
@@ -162,6 +164,7 @@ class TerminalSession extends EventEmitter {
           this.emit('output', `Terminal initialized in fallback mode\n`);
           this.emit('output', `Working directory: ${this.currentDir}\n`);
           this.emit('output', `Note: Using command execution mode (non-interactive)\n\n`);
+          this.emit('output', `$ `); // Show initial prompt
           
           return true;
         }
@@ -244,6 +247,9 @@ class TerminalSession extends EventEmitter {
 
     if (cmd === 'clear' || cmd === 'cls') {
       this.emit('clear');
+      if (this.fallbackMode) {
+        this.emit('output', '$ ');
+      }
       return;
     }
 
@@ -296,18 +302,28 @@ class TerminalSession extends EventEmitter {
       }
       
       this.emit('output', `Changed directory to: ${this.currentDir}\n`);
+      if (this.fallbackMode) {
+        this.emit('output', '$ ');
+      }
     } catch (error) {
       this.emit('error', `Cannot change directory: ${error.message}\n`);
+      if (this.fallbackMode) {
+        this.emit('output', '$ ');
+      }
     }
   }
 
   executeWithExec(command) {
     exec(command, { 
       cwd: this.currentDir,
-      maxBuffer: 1024 * 1024 // 1MB buffer
+      maxBuffer: 1024 * 1024, // 1MB buffer
+      env: { ...process.env, PATH: process.env.PATH || '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' }
     }, (error, stdout, stderr) => {
       if (error) {
         this.emit('error', `Error: ${error.message}\n`);
+        if (this.fallbackMode) {
+          this.emit('output', '$ ');
+        }
         return;
       }
       if (stdout) {
@@ -315,6 +331,10 @@ class TerminalSession extends EventEmitter {
       }
       if (stderr) {
         this.emit('error', stderr);
+      }
+      // Show prompt in fallback mode
+      if (this.fallbackMode) {
+        this.emit('output', '$ ');
       }
     });
   }
@@ -340,6 +360,57 @@ class TerminalSession extends EventEmitter {
       // Terminal resize is not directly supported without node-pty
       // This is a placeholder for future implementation
       this.emit('resize', { cols, rows });
+    }
+  }
+
+  async handleInput(data) {
+    // Handle raw terminal input (keystrokes)
+    if (this.fallbackMode) {
+      // In fallback mode, we need to handle line buffering ourselves
+      for (const char of data) {
+        const code = char.charCodeAt(0);
+        
+        // Handle special characters
+        if (code === 13) { // Enter key
+          if (this.inputBuffer.trim()) {
+            // Echo the command
+            this.emit('output', this.inputBuffer + '\n');
+            // Execute the buffered command
+            await this.executeCommand(this.inputBuffer);
+            this.inputBuffer = '';
+            // Show prompt after command completes
+            setTimeout(() => {
+              this.emit('output', '$ ');
+            }, 100);
+          } else {
+            this.emit('output', '\n');
+          }
+        } else if (code === 127 || code === 8) { // Backspace
+          if (this.inputBuffer.length > 0) {
+            this.inputBuffer = this.inputBuffer.slice(0, -1);
+            // Move cursor back, clear character, move back again
+            this.emit('output', '\b \b');
+          }
+        } else if (code === 3) { // Ctrl+C
+          this.inputBuffer = '';
+          this.emit('output', '^C\n$ ');
+        } else if (code >= 32 && code < 127) { // Printable characters
+          this.inputBuffer += char;
+          // Echo the character
+          this.emit('output', char);
+        }
+      }
+    } else if (this.shell && !this.shell.killed) {
+      // In interactive mode, pass input directly to shell
+      try {
+        this.shell.stdin.write(data);
+      } catch (error) {
+        logger.error('[TerminalService] Error writing to shell:', error);
+        // Switch to fallback mode
+        this.fallbackMode = true;
+        this.shell = null;
+        this.emit('output', '\n\x1b[33mSwitched to fallback mode\x1b[0m\n');
+      }
     }
   }
 

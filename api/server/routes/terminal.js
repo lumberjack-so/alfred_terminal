@@ -201,7 +201,8 @@ function setupWebSocket(server) {
         
         switch (data.type) {
           case 'command':
-            await session.executeCommand(data.command);
+            // Handle raw terminal input (keystrokes)
+            await session.handleInput(data.command);
             break;
           
           case 'resize':
