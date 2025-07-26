@@ -89,6 +89,7 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
+        console.log('[Terminal] Received message:', message.type, message.data?.length || 0, 'chars');
         
         switch (message.type) {
           case 'ready':
@@ -224,9 +225,12 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
 
     // Handle terminal input
     term.onData((data) => {
+      console.log('[Terminal] Sending data:', data, 'Length:', data.length, 'Codes:', data.split('').map(c => c.charCodeAt(0)));
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         // Send command to backend
         wsRef.current.send(JSON.stringify({ type: 'command', command: data }));
+      } else {
+        console.error('[Terminal] WebSocket not ready, state:', wsRef.current?.readyState);
       }
     });
 

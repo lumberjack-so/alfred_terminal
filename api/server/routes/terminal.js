@@ -170,6 +170,7 @@ function setupWebSocket(server) {
 
     // Set up event handlers
     session.on('output', (data) => {
+      logger.debug(`[Terminal] Output event: '${data}' (${data.length} chars)`);
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'output', data }));
       }

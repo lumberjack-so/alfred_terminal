@@ -172,6 +172,13 @@ class TerminalSession extends EventEmitter {
 
       if (!this.fallbackMode) {
         this.setupShellHandlers();
+        
+        // For interactive shell, send a newline to trigger prompt display
+        setTimeout(() => {
+          if (this.shell && !this.shell.killed) {
+            this.shell.stdin.write('\n');
+          }
+        }, 100);
       }
       
       // Send initial directory
@@ -365,6 +372,8 @@ class TerminalSession extends EventEmitter {
 
   async handleInput(data) {
     // Handle raw terminal input (keystrokes)
+    logger.debug(`[TerminalService] handleInput called with: '${data}', length: ${data.length}, fallbackMode: ${this.fallbackMode}`);
+    
     if (this.fallbackMode) {
       // In fallback mode, we need to handle line buffering ourselves
       for (const char of data) {
@@ -397,6 +406,7 @@ class TerminalSession extends EventEmitter {
         } else if (code >= 32 && code < 127) { // Printable characters
           this.inputBuffer += char;
           // Echo the character
+          logger.debug(`[TerminalService] Echoing character: '${char}' (code: ${code})`);
           this.emit('output', char);
         }
       }
