@@ -167,6 +167,11 @@ function setupWebSocket(server) {
 
     userId = session.userId;
     logger.info(`[Terminal] WebSocket connected for session ${sessionId}, user ${userId}`);
+    logger.info(`[Terminal] Session state:`, {
+      hasHandleInput: typeof session.handleInput === 'function',
+      fallbackMode: session.fallbackMode,
+      hasShell: !!session.shell
+    });
 
     // Set up event handlers
     session.on('output', (data) => {
@@ -219,6 +224,11 @@ function setupWebSocket(server) {
             ws.send(JSON.stringify({ type: 'pong' }));
             break;
           
+          case 'echo':
+            // Simple echo test
+            ws.send(JSON.stringify({ type: 'output', data: `Echo: ${data.text || 'no text'}\n` }));
+            break;
+          
           default:
             ws.send(JSON.stringify({ 
               type: 'error', 
@@ -251,8 +261,16 @@ function setupWebSocket(server) {
     ws.send(JSON.stringify({ 
       type: 'ready', 
       sessionId,
-      currentDir: session.currentDir 
+      currentDir: session.currentDir,
+      fallbackMode: session.fallbackMode
     }));
+    
+    // If in fallback mode, send initial prompt
+    if (session.fallbackMode) {
+      setTimeout(() => {
+        ws.send(JSON.stringify({ type: 'output', data: '$ ' }));
+      }, 100);
+    }
   });
 
     logger.info('[Terminal] WebSocket server setup complete');

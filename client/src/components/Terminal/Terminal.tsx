@@ -244,6 +244,14 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
     term.write('\x1b[1;34m║\x1b[0m  \x1b[1;32mClaude Code Terminal\x1b[0m - Powered by LibreChat         \x1b[1;34m║\x1b[0m\r\n');
     term.write('\x1b[1;34m╚══════════════════════════════════════════════════════════╝\x1b[0m\r\n');
     term.write('\r\n\x1b[33mCreating terminal session...\x1b[0m\r\n');
+    
+    // Add test for debugging
+    (window as any).testTerminal = () => {
+      console.log('[Terminal] Testing echo...');
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: 'echo', text: 'Hello from client!' }));
+      }
+    };
 
     // Handle terminal input
     term.onData((data) => {

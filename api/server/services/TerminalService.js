@@ -182,8 +182,10 @@ class TerminalSession extends EventEmitter {
       }
       
       // Send initial directory
-      this.emit('output', `Terminal initialized in ${this.currentDir}\n`);
-      logger.info(`[TerminalService] Terminal session ${this.sessionId} initialized successfully`);
+      if (!this.fallbackMode) {
+        this.emit('output', `Terminal initialized in ${this.currentDir}\n`);
+      }
+      logger.info(`[TerminalService] Terminal session ${this.sessionId} initialized successfully in ${this.fallbackMode ? 'fallback' : 'interactive'} mode`);
       
       return true;
     } catch (error) {
