@@ -95,7 +95,11 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
           case 'ready':
             if (xtermRef.current) {
               xtermRef.current.write('\r\n\x1b[32mConnected to terminal session\x1b[0m\r\n');
-              xtermRef.current.write(`\x1b[36mCurrent directory: ${message.currentDir}\x1b[0m\r\n\r\n`);
+              xtermRef.current.write(`\x1b[36mCurrent directory: ${message.currentDir}\x1b[0m\r\n`);
+              if (message.fallbackMode) {
+                xtermRef.current.write('\x1b[33mRunning in fallback mode (non-interactive)\x1b[0m\r\n');
+              }
+              xtermRef.current.write('\r\n');
             }
             break;
           

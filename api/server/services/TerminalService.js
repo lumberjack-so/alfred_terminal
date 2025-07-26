@@ -376,9 +376,6 @@ class TerminalSession extends EventEmitter {
     // Handle raw terminal input (keystrokes)
     logger.info(`[TerminalService] handleInput called with: '${data}', length: ${data.length}, fallbackMode: ${this.fallbackMode}, hasShell: ${!!this.shell}`);
     
-    // IMMEDIATE ECHO TEST - this should always work
-    this.emit('output', `[ECHO TEST] You typed: ${data}`);
-    
     if (this.fallbackMode) {
       // In fallback mode, we need to handle line buffering ourselves
       for (const char of data) {
@@ -411,8 +408,10 @@ class TerminalSession extends EventEmitter {
         } else if (code >= 32 && code < 127) { // Printable characters
           this.inputBuffer += char;
           // Echo the character
-          logger.info(`[TerminalService] Echoing character: '${char}' (code: ${code})`);
+          logger.info(`[TerminalService] Echoing character: '${char}' (code: ${code}), buffer now: '${this.inputBuffer}'`);
           this.emit('output', char);
+        } else {
+          logger.info(`[TerminalService] Unhandled character code: ${code}`);
         }
       }
     } else if (this.shell && !this.shell.killed) {
