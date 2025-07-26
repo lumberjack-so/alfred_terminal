@@ -60,9 +60,13 @@ class TerminalSession extends EventEmitter {
           shell: true
         });
       } else {
-        this.shell = spawn('/bin/bash', ['-i'], {
+        // Use /bin/sh for Alpine Linux compatibility
+        const shellPath = process.env.SHELL || '/bin/sh';
+        logger.info(`[TerminalService] Using shell: ${shellPath}`);
+        
+        this.shell = spawn(shellPath, ['-i'], {
           cwd: this.currentDir,
-          env: { ...process.env, PS1: '\\w$ ' }
+          env: { ...process.env, PS1: '\\w$ ', TERM: 'xterm-256color' }
         });
       }
 
@@ -99,7 +103,7 @@ class TerminalSession extends EventEmitter {
 
     this.shell.on('error', (error) => {
       logger.error('[TerminalService] Shell error:', error);
-      this.emit('error', error.message);
+      this.emit('error', `Shell error: ${error.message}`);
     });
   }
 
