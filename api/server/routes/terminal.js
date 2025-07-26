@@ -6,6 +6,15 @@ const logger = require('~/config/winston');
 
 const router = express.Router();
 
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    wsSupport: true,
+    message: 'Terminal service is running'
+  });
+});
+
 // REST endpoints
 router.post('/create', requireJwtAuth, async (req, res) => {
   try {
@@ -78,19 +87,29 @@ router.get('/history/:sessionId', requireJwtAuth, async (req, res) => {
 function setupWebSocket(server) {
   logger.info('[Terminal] Setting up WebSocket server');
   
+  // Create WebSocket server without path to handle manual upgrade
   const wss = new WebSocket.Server({ 
-    server,
-    path: '/api/terminal/ws',
+    noServer: true, // Don't create HTTP server, we'll handle upgrade manually
     perMessageDeflate: false, // Disable compression for better compatibility
-    clientTracking: true,
-    verifyClient: (info, cb) => {
-      // Log connection attempt
-      logger.info('[Terminal] WebSocket verify client:', {
-        url: info.req.url,
-        headers: info.req.headers['x-forwarded-for'] || info.req.connection.remoteAddress
+    clientTracking: true
+  });
+
+  // Handle HTTP upgrade manually for better control
+  server.on('upgrade', (request, socket, head) => {
+    logger.info('[Terminal] Upgrade request:', {
+      url: request.url,
+      headers: request.headers
+    });
+
+    // Check if this is a terminal WebSocket request
+    if (request.url && request.url.startsWith('/api/terminal/ws')) {
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        logger.info('[Terminal] WebSocket upgrade successful');
+        wss.emit('connection', ws, request);
       });
-      // Allow all connections for now, authentication will be handled per-message
-      cb(true);
+    } else {
+      // Not a terminal WebSocket request
+      socket.destroy();
     }
   });
 

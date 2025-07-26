@@ -153,11 +153,6 @@ const startServer = async () => {
     logger.info('[Terminal] Initializing WebSocket server...');
     routes.terminal.setupWebSocket(server);
   });
-
-  // Handle WebSocket upgrade for Railway/proxy compatibility
-  server.on('upgrade', (request, socket, head) => {
-    logger.info('[Terminal] Upgrade request received for:', request.url);
-  });
 };
 
 startServer();

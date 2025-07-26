@@ -57,8 +57,10 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
 
     // Create WebSocket connection with session ID
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/api/terminal/ws?sessionId=${sessionId}`;
+    const host = window.location.host;
+    const wsUrl = `${protocol}//${host}/api/terminal/ws?sessionId=${sessionId}`;
     
+    console.log('[Terminal] Connecting to WebSocket:', wsUrl);
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
