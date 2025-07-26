@@ -175,7 +175,7 @@ function setupWebSocket(server) {
 
     // Set up event handlers
     session.on('output', (data) => {
-      logger.debug(`[Terminal] Output event: '${data}' (${data.length} chars)`);
+      logger.info(`[Terminal] Output event: '${data.substring(0, 50)}' (${data.length} chars)`);
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'output', data }));
       }
@@ -204,7 +204,7 @@ function setupWebSocket(server) {
     ws.on('message', async (message) => {
       try {
         const data = JSON.parse(message);
-        logger.debug(`[Terminal] Received WebSocket message:`, { type: data.type, command: data.command?.substring(0, 20) });
+        logger.info(`[Terminal] Received WebSocket message:`, { type: data.type, command: data.command?.substring(0, 20) });
         
         switch (data.type) {
           case 'command':

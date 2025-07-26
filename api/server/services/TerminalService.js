@@ -376,6 +376,9 @@ class TerminalSession extends EventEmitter {
     // Handle raw terminal input (keystrokes)
     logger.info(`[TerminalService] handleInput called with: '${data}', length: ${data.length}, fallbackMode: ${this.fallbackMode}, hasShell: ${!!this.shell}`);
     
+    // IMMEDIATE ECHO TEST - this should always work
+    this.emit('output', `[ECHO TEST] You typed: ${data}`);
+    
     if (this.fallbackMode) {
       // In fallback mode, we need to handle line buffering ourselves
       for (const char of data) {
