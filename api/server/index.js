@@ -149,9 +149,14 @@ const startServer = async () => {
 
     initializeMCP(app);
     
-    // Set up WebSocket for terminal
-    logger.info('[Terminal] Initializing WebSocket server...');
-    routes.terminal.setupWebSocket(server);
+    // Set up WebSocket for terminal with error handling
+    try {
+      logger.info('[Terminal] Initializing WebSocket server...');
+      routes.terminal.setupWebSocket(server);
+    } catch (error) {
+      logger.error('[Terminal] Failed to initialize WebSocket server:', error);
+      // Continue running the server even if terminal fails
+    }
   });
 };
 

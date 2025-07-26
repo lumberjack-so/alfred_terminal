@@ -35,7 +35,8 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create terminal session');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.details || errorData.error || 'Failed to create terminal session');
       }
 
       const data = await response.json();
@@ -43,7 +44,14 @@ export default function Terminal({ className, conversationId, endpoint }: Termin
     } catch (error) {
       console.error('Error creating terminal session:', error);
       if (xtermRef.current) {
-        xtermRef.current.write('\r\n\x1b[31mFailed to create terminal session\x1b[0m\r\n');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to create terminal session';
+        xtermRef.current.write(`\r\n\x1b[31mError: ${errorMessage}\x1b[0m\r\n`);
+        
+        // Show helpful message if terminal service is unavailable
+        if (errorMessage.includes('not be available in this environment')) {
+          xtermRef.current.write('\r\n\x1b[33mThe terminal service requires a shell environment.\x1b[0m\r\n');
+          xtermRef.current.write('\x1b[33mThis feature may not work in containerized environments without proper shell access.\x1b[0m\r\n');
+        }
       }
       return null;
     }

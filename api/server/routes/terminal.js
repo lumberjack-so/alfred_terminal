@@ -20,8 +20,17 @@ router.post('/create', requireJwtAuth, async (req, res) => {
   try {
     logger.info('[Terminal] Creating session for user:', req.user.id);
     const userId = req.user.id;
-    const { sessionId, session } = await TerminalService.createSession(userId);
+    const result = await TerminalService.createSession(userId);
     
+    if (!result) {
+      logger.error('[Terminal] Session creation returned null');
+      return res.status(500).json({ 
+        error: 'Failed to create terminal session',
+        details: 'Terminal initialization failed. The terminal service may not be available in this environment.' 
+      });
+    }
+    
+    const { sessionId, session } = result;
     logger.info('[Terminal] Session created successfully:', { sessionId, userId });
     
     res.json({
@@ -33,7 +42,7 @@ router.post('/create', requireJwtAuth, async (req, res) => {
     logger.error('[Terminal] Error creating session:', error);
     res.status(500).json({ 
       error: 'Failed to create terminal session',
-      details: error.message 
+      details: error.message || 'Unknown error occurred' 
     });
   }
 });
@@ -85,33 +94,39 @@ router.get('/history/:sessionId', requireJwtAuth, async (req, res) => {
 
 // WebSocket handler setup function
 function setupWebSocket(server) {
-  logger.info('[Terminal] Setting up WebSocket server');
-  
-  // Create WebSocket server without path to handle manual upgrade
-  const wss = new WebSocket.Server({ 
-    noServer: true, // Don't create HTTP server, we'll handle upgrade manually
-    perMessageDeflate: false, // Disable compression for better compatibility
-    clientTracking: true
-  });
-
-  // Handle HTTP upgrade manually for better control
-  server.on('upgrade', (request, socket, head) => {
-    logger.info('[Terminal] Upgrade request:', {
-      url: request.url,
-      headers: request.headers
+  try {
+    logger.info('[Terminal] Setting up WebSocket server');
+    
+    // Create WebSocket server without path to handle manual upgrade
+    const wss = new WebSocket.Server({ 
+      noServer: true, // Don't create HTTP server, we'll handle upgrade manually
+      perMessageDeflate: false, // Disable compression for better compatibility
+      clientTracking: true
     });
 
-    // Check if this is a terminal WebSocket request
-    if (request.url && request.url.startsWith('/api/terminal/ws')) {
-      wss.handleUpgrade(request, socket, head, (ws) => {
-        logger.info('[Terminal] WebSocket upgrade successful');
-        wss.emit('connection', ws, request);
-      });
-    } else {
-      // Not a terminal WebSocket request
-      socket.destroy();
-    }
-  });
+    // Handle HTTP upgrade manually for better control
+    server.on('upgrade', (request, socket, head) => {
+      try {
+        logger.info('[Terminal] Upgrade request:', {
+          url: request.url,
+          headers: request.headers
+        });
+
+        // Check if this is a terminal WebSocket request
+        if (request.url && request.url.startsWith('/api/terminal/ws')) {
+          wss.handleUpgrade(request, socket, head, (ws) => {
+            logger.info('[Terminal] WebSocket upgrade successful');
+            wss.emit('connection', ws, request);
+          });
+        } else {
+          // Not a terminal WebSocket request
+          socket.destroy();
+        }
+      } catch (error) {
+        logger.error('[Terminal] Error during WebSocket upgrade:', error);
+        socket.destroy();
+      }
+    });
 
   wss.on('error', (error) => {
     logger.error('[Terminal] WebSocket server error:', error);
@@ -233,8 +248,17 @@ function setupWebSocket(server) {
     }));
   });
 
-  logger.info('[Terminal] WebSocket server setup complete');
-  return wss;
+    logger.info('[Terminal] WebSocket server setup complete');
+    return wss;
+  } catch (error) {
+    logger.error('[Terminal] Failed to setup WebSocket server:', error);
+    // Return a dummy object to prevent crashes
+    return {
+      on: () => {},
+      emit: () => {},
+      clients: new Set()
+    };
+  }
 }
 
 // Export router and WebSocket setup

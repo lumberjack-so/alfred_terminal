@@ -64,10 +64,24 @@ class TerminalSession extends EventEmitter {
         const shellPath = process.env.SHELL || '/bin/sh';
         logger.info(`[TerminalService] Using shell: ${shellPath}`);
         
-        this.shell = spawn(shellPath, ['-i'], {
-          cwd: this.currentDir,
-          env: { ...process.env, PS1: '\\w$ ', TERM: 'xterm-256color' }
-        });
+        try {
+          this.shell = spawn(shellPath, ['-i'], {
+            cwd: this.currentDir,
+            env: { ...process.env, PS1: '\\w$ ', TERM: 'xterm-256color' },
+            stdio: ['pipe', 'pipe', 'pipe']
+          });
+        } catch (spawnError) {
+          logger.error('[TerminalService] Failed to spawn shell:', spawnError);
+          this.emit('error', `Failed to start terminal: ${spawnError.message}`);
+          return false;
+        }
+      }
+
+      // Check if shell was created successfully
+      if (!this.shell || !this.shell.pid) {
+        logger.error('[TerminalService] Shell process failed to start');
+        this.emit('error', 'Failed to start terminal shell');
+        return false;
       }
 
       this.setupShellHandlers();
@@ -79,24 +93,35 @@ class TerminalSession extends EventEmitter {
       return true;
     } catch (error) {
       logger.error('[TerminalService] Initialization error:', error);
-      throw error;
+      this.emit('error', `Terminal initialization failed: ${error.message}`);
+      return false;
     }
   }
 
   setupShellHandlers() {
-    this.shell.stdout.on('data', (data) => {
-      const output = data.toString();
-      this.emit('output', output);
-      this.addToHistory({ type: 'output', data: output, timestamp: new Date() });
-    });
+    if (!this.shell) {
+      logger.error('[TerminalService] Cannot setup handlers - shell is null');
+      return;
+    }
 
-    this.shell.stderr.on('data', (data) => {
-      const error = data.toString();
-      this.emit('error', error);
-      this.addToHistory({ type: 'error', data: error, timestamp: new Date() });
-    });
+    if (this.shell.stdout) {
+      this.shell.stdout.on('data', (data) => {
+        const output = data.toString();
+        this.emit('output', output);
+        this.addToHistory({ type: 'output', data: output, timestamp: new Date() });
+      });
+    }
+
+    if (this.shell.stderr) {
+      this.shell.stderr.on('data', (data) => {
+        const error = data.toString();
+        this.emit('error', error);
+        this.addToHistory({ type: 'error', data: error, timestamp: new Date() });
+      });
+    }
 
     this.shell.on('exit', (code) => {
+      logger.info(`[TerminalService] Shell exited with code: ${code}`);
       this.emit('exit', code);
       this.cleanup();
     });
@@ -104,6 +129,8 @@ class TerminalSession extends EventEmitter {
     this.shell.on('error', (error) => {
       logger.error('[TerminalService] Shell error:', error);
       this.emit('error', `Shell error: ${error.message}`);
+      // Don't throw - just handle gracefully
+      this.cleanup();
     });
   }
 
@@ -241,24 +268,42 @@ class TerminalService {
     const baseDir = path.join(process.cwd(), 'app', 'terminal', 'alfred', userId);
     
     const session = new TerminalSession(sessionId, userId, baseDir);
-    await session.initialize();
     
-    this.sessions.set(sessionId, session);
-    
-    // Auto cleanup after 30 minutes of inactivity
-    session.inactivityTimer = setTimeout(() => {
-      this.destroySession(sessionId);
-    }, 30 * 60 * 1000);
-
-    // Reset timer on activity
-    session.on('command', () => {
-      clearTimeout(session.inactivityTimer);
+    try {
+      const initialized = await session.initialize();
+      if (!initialized) {
+        logger.error('[TerminalService] Session initialization failed');
+        // Don't throw - return null to indicate failure
+        return null;
+      }
+      
+      this.sessions.set(sessionId, session);
+      
+      // Auto cleanup after 30 minutes of inactivity
       session.inactivityTimer = setTimeout(() => {
         this.destroySession(sessionId);
       }, 30 * 60 * 1000);
-    });
-    
-    return { sessionId, session };
+
+      // Reset timer on activity
+      session.on('command', () => {
+        clearTimeout(session.inactivityTimer);
+        session.inactivityTimer = setTimeout(() => {
+          this.destroySession(sessionId);
+        }, 30 * 60 * 1000);
+      });
+      
+      return { sessionId, session };
+    } catch (error) {
+      logger.error('[TerminalService] Error during session creation:', error);
+      // Clean up the failed session
+      try {
+        session.cleanup();
+      } catch (cleanupError) {
+        logger.error('[TerminalService] Error during cleanup:', cleanupError);
+      }
+      // Return null instead of throwing to prevent server crash
+      return null;
+    }
   }
 
   getSession(sessionId) {
