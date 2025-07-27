@@ -16,31 +16,29 @@ ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
 COPY --from=ghcr.io/astral-sh/uv:0.6.13 /uv /uvx /bin/
 RUN uv --version
 
-  # Install git first
-  RUN apk add --no-cache git
+# Install git first
+RUN apk add --no-cache git
 
-  # Clone, build and install your fork
-  RUN git clone https://github.com/lumberjack-so/n8n-mcp.git /tmp/n8n-mcp && \
-      cd /tmp/n8n-mcp && \
-      npm install && \
-      npm run build && \
-      npm run rebuild && \
-      cp -r /tmp/n8n-mcp /opt/n8n-mcp && \
-      rm -rf /tmp/n8n-mcp && \
+# Clone, build and install your fork
+RUN git clone https://github.com/lumberjack-so/n8n-mcp.git /tmp/n8n-mcp && \
+    cd /tmp/n8n-mcp && \
+    npm install && \
+    npm run build && \
+    npm run rebuild && \
+    cp -r /tmp/n8n-mcp /opt/n8n-mcp && \
+    rm -rf /tmp/n8n-mcp && \
+      
+# Create executable wrapper
+RUN echo '#!/bin/sh\nnode /opt/n8n-mcp/dist/mcp/index.js "$@"' > /usr/local/bin/n8n-mcp && \
+    chmod +x /usr/local/bin/n8n-mcp
 
-
-  # Create executable wrapper
-  RUN echo '#!/bin/sh\nnode /opt/n8n-mcp/dist/mcp/index.js "$@"' > /usr/local/bin/n8n-mcp && \
-      chmod +x /usr/local/bin/n8n-mcp
-
-  # Install Python Ghost MCP server instead of the broken TypeScript one
-  RUN git clone https://github.com/ssdavidai/ghost-mcp.git /opt/ghost-mcp && \
+# Install Python Ghost MCP server instead of the broken TypeScript one
+RUN git clone https://github.com/ssdavidai/ghost-mcp.git /opt/ghost-mcp && \
     cd /opt/ghost-mcp && \
     git checkout python-version && \
     uv venv && \
     . .venv/bin/activate && \
     uv pip install -e .      
-
 RUN mkdir -p /app && chown node:node /app
 WORKDIR /app
 
