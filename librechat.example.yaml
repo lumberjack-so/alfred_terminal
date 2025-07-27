@@ -25,7 +25,7 @@ interface:
   termsOfService:
     externalUrl: 'https://lumberjack.so/tos'
     openNewTab: true
-    modalAcceptance: true
+    modalAcceptance: no
     modalTitle: "Terms of Service for AlfredOS"
     modalContent: |
       # Terms and Conditions for AlfredOS
@@ -114,37 +114,18 @@ registration:
 #   refillAmount: 10000
 
  speech:
-  speechTab:
-    conversationMode: true
-    advancedMode: true
-    speechToText:
-      engineSTT: "external"
-      languageSTT: "English (US)"
-      autoTranscribeAudio: true
-      decibelValue: -45
-      autoSendText: 0
-    textToSpeech:
-      engineTTS: "external"
-      voice: "alloy"
-      languageTTS: "en"
-      automaticPlayback: true
-      playbackRate: 1.0
-      cacheTTS: true
    tts:
-    openai:
-       url: ''
+     openai:
        apiKey: '${OPENAI_API_KEY}'
        model: 'gpt-4o-mini-tts'
-       voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer','ballad','verse','sage','coral']
-    elevenlabs:
-      apiKey: '${ELEVENLABS_API_KEY}'
-      model: 'eleven_flash_v2_5'
-      voices: ['c6SfcYrb2t09NHXiT80T', 'Fahco4VZzobUeiPqni1S', 'kdmDKE6EkgrWrrykO9Qt', 'Aa6nEBJJMKJwJkCx8VU2']   
-
+       voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+     elevenlabs:
+       apiKey: '${ELEVENLABS_API_KEY}'
+       model: 'eleven_flash_v2_5'
+       voices: ['c6SfcYrb2t09NHXiT80T', 'Fahco4VZzobUeiPqni1S', 'kdmDKE6EkgrWrrykO9Qt', 'Aa6nEBJJMKJwJkCx8VU2']
 
    stt:
      openai:
-       url: ''
        apiKey: '${OPENAI_API_KEY}'
        model: 'gpt-4o-mini-transcribe'
 
