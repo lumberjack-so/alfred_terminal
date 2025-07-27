@@ -33,8 +33,13 @@ RUN uv --version
   RUN echo '#!/bin/sh\nnode /opt/n8n-mcp/dist/mcp/index.js "$@"' > /usr/local/bin/n8n-mcp && \
       chmod +x /usr/local/bin/n8n-mcp
 
-  # Install Ghost MCP server
-  RUN npm install -g @fanyangmeng/ghost-mcp      
+  # Install Python Ghost MCP server instead of the broken TypeScript one
+  RUN git clone https://github.com/ssdavidai/ghost-mcp.git /opt/ghost-mcp && \
+    cd /opt/ghost-mcp && \
+    git checkout python-version && \
+    uv venv && \
+    . .venv/bin/activate && \
+    uv pip install -e .      
 
 RUN mkdir -p /app && chown node:node /app
 WORKDIR /app
