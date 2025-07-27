@@ -25,7 +25,7 @@ interface:
   termsOfService:
     externalUrl: 'https://lumberjack.so/tos'
     openNewTab: true
-    modalAcceptance: no
+    modalAcceptance: false
     modalTitle: "Terms of Service for AlfredOS"
     modalContent: |
       # Terms and Conditions for AlfredOS
