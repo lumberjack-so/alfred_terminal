@@ -162,40 +162,12 @@ mcpServers:
         N8N_API_KEY: "${N8N_API_KEY}"
 
   ghost:
-    type: stdio
-    command: "npx"
-    args: ["-y", "@fanyangmeng/ghost-mcp"]
-    env:
-      GHOST_API_URL: "${GHOST_API_URL}"
-      GHOST_ADMIN_API_KEY: "${GHOST_ADMIN_API_KEY}"
-      GHOST_CONTENT_API_KEY: "${GHOST_CONTENT_API_KEY}"
-      GHOST_API_VERSION: "v5.0"
-  
-  # Cal.com MCP Server
-  calcom:
-    type: streamable-http
-    url: "https://server.smithery.ai/@mumunha/cal_dot_com_mcpserver/mcp"
-    params:
-      # Smithery authentication
-      api_key: "${SMITHERY_API_KEY}"
-      profile: "${SMITHERY_PROFILE}"
-      # Cal.com service configuration
-      calcomApiKey: "${CALCOM_API_KEY}"
-    timeout: 30000
-    initTimeout: 10000
-  
-  # Supabase MCP Server
-  supabase:
-    type: streamable-http
-    url: "https://server.smithery.ai/@supabase-community/supabase-mcp/mcp"
-    params:
-      # Smithery authentication
-      api_key: "${SMITHERY_API_KEY}"
-      profile: "${SMITHERY_PROFILE}"
-      # Supabase service configuration
-      accessToken: "${SUPABASE_ACCESS_TOKEN}"
-    timeout: 30000
-    initTimeout: 10000
+      type: stdio
+      command: "/opt/ghost-mcp/.venv/bin/python"
+      args: ["/opt/ghost-mcp/src/main.py"]
+      env:
+        GHOST_API_URL: "${GHOST_API_URL}"
+        GHOST_STAFF_API_KEY: "${GHOST_ADMIN_API_KEY}"
   
   # Optional: Puppeteer for browser automation
   # puppeteer:
