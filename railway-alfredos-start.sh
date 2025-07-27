@@ -20,7 +20,7 @@ echo "  - PATH: $PATH"
 # Configuration
 CONFIG_DIR="/app/config"
 CONFIG_FILE="$CONFIG_DIR/librechat.yaml"
-GITHUB_CONFIG_URL="https://raw.githubusercontent.com/lumberjack-so/LibreChat/refs/heads/main/librechat.example.yaml"
+GITHUB_CONFIG_URL="https://raw.githubusercontent.com/lumberjack-so/alfred_terminal/refs/heads/main/librechat.example.yaml"
 
 # Ensure config directory exists
 mkdir -p "$CONFIG_DIR"
