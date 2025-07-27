@@ -116,7 +116,7 @@ registration:
 speech:
   tts:
     openai:
-      url: 'https://api.openai.com/v1/audio/speech"
+      url: 'https://api.openai.com/v1/audio/speech'
       apiKey: '${OPENAI_API_KEY}'
       model: 'whisper-1'
       voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
