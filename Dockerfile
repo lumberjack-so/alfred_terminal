@@ -26,7 +26,7 @@ RUN git clone https://github.com/lumberjack-so/n8n-mcp.git /tmp/n8n-mcp && \
     npm run build && \
     npm run rebuild && \
     cp -r /tmp/n8n-mcp /opt/n8n-mcp && \
-    rm -rf /tmp/n8n-mcp && \
+    rm -rf /tmp/n8n-mcp
       
 # Create executable wrapper
 RUN echo '#!/bin/sh\nnode /opt/n8n-mcp/dist/mcp/index.js "$@"' > /usr/local/bin/n8n-mcp && \
