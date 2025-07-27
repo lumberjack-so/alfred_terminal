@@ -116,8 +116,9 @@ registration:
 speech:
   tts:
     openai:
+      url: 'https://api.openai.com/v1/audio/speech"
       apiKey: '${OPENAI_API_KEY}'
-      model: 'gpt-4o-mini-tts'
+      model: 'whisper-1'
       voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
     elevenlabs:
       apiKey: '${ELEVENLABS_API_KEY}'
@@ -125,8 +126,9 @@ speech:
       voices: ['c6SfcYrb2t09NHXiT80T', 'Fahco4VZzobUeiPqni1S', 'kdmDKE6EkgrWrrykO9Qt', 'Aa6nEBJJMKJwJkCx8VU2']
   stt:
     openai:
+      url: 'https://api.openai.com/v1/audio/transcriptions'
       apiKey: '${OPENAI_API_KEY}'
-      model: 'gpt-4o-mini-transcribe'
+      model: 'whisper-1'
 
 # rateLimits:
 #   fileUploads:
