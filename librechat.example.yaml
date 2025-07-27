@@ -113,21 +113,20 @@ registration:
 #   refillIntervalUnit: 'days'
 #   refillAmount: 10000
 
- speech:
-   tts:
-     openai:
-       apiKey: '${OPENAI_API_KEY}'
-       model: 'gpt-4o-mini-tts'
-       voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
-     elevenlabs:
-       apiKey: '${ELEVENLABS_API_KEY}'
-       model: 'eleven_flash_v2_5'
-       voices: ['c6SfcYrb2t09NHXiT80T', 'Fahco4VZzobUeiPqni1S', 'kdmDKE6EkgrWrrykO9Qt', 'Aa6nEBJJMKJwJkCx8VU2']
-
-   stt:
-     openai:
-       apiKey: '${OPENAI_API_KEY}'
-       model: 'gpt-4o-mini-transcribe'
+speech:
+  tts:
+    openai:
+      apiKey: '${OPENAI_API_KEY}'
+      model: 'gpt-4o-mini-tts'
+      voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+    elevenlabs:
+      apiKey: '${ELEVENLABS_API_KEY}'
+      model: 'eleven_flash_v2_5'
+      voices: ['c6SfcYrb2t09NHXiT80T', 'Fahco4VZzobUeiPqni1S', 'kdmDKE6EkgrWrrykO9Qt', 'Aa6nEBJJMKJwJkCx8VU2']
+  stt:
+    openai:
+      apiKey: '${OPENAI_API_KEY}'
+      model: 'gpt-4o-mini-transcribe'
 
 # rateLimits:
 #   fileUploads:
