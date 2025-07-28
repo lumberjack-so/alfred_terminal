@@ -116,9 +116,8 @@ registration:
 speech:
   tts:
     openai:
-      url: 'https://api.openai.com/v1/audio/speech'
       apiKey: '${OPENAI_API_KEY}'
-      model: 'whisper-1'
+      model: 'gpt-4o-mini'
       voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
     elevenlabs:
       apiKey: '${ELEVENLABS_API_KEY}'
@@ -126,9 +125,8 @@ speech:
       voices: ['c6SfcYrb2t09NHXiT80T', 'Fahco4VZzobUeiPqni1S', 'kdmDKE6EkgrWrrykO9Qt', 'Aa6nEBJJMKJwJkCx8VU2']
   stt:
     openai:
-      url: 'https://api.openai.com/v1/audio/transcriptions'
       apiKey: '${OPENAI_API_KEY}'
-      model: 'whisper-1'
+      model: 'gpt-4o-mini-transcribe'
 
 # rateLimits:
 #   fileUploads:
@@ -169,20 +167,20 @@ mcpServers:
         GHOST_API_URL: "${GHOST_API_URL}"
         GHOST_STAFF_API_KEY: "${GHOST_ADMIN_API_KEY}"
   
-  # Optional: Puppeteer for browser automation
-  # puppeteer:
-  #   type: stdio
-  #   command: npx
-  #   args:
-  #     - -y
-  #     - "@modelcontextprotocol/server-puppeteer"
-  #   timeout: 300000  # 5 minutes timeout for this server
+
+  puppeteer:
+      type: stdio
+      command: npx
+      args:
+        - -y
+        - "@modelcontextprotocol/server-puppeteer"
+      timeout: 300000  # 5 minutes timeout for this server
 
 # Definition of custom endpoints
 endpoints:
-  # assistants:
-  #   disableBuilder: false # Disable Assistants Builder Interface by setting to `true`
-  #   pollIntervalMs: 3000  # Polling interval for checking assistant updates
+    assistants:
+      disableBuilder: false # Disable Assistants Builder Interface by setting to `true`
+      pollIntervalMs: 3000  # Polling interval for checking assistant updates
   #   timeoutMs: 180000  # Timeout for assistant operations
   #   # Should only be one or the other, either `supportedIds` or `excludedIds`
   #   supportedIds: ["asst_supportedAssistantId1", "asst_supportedAssistantId2"]
@@ -190,18 +188,18 @@ endpoints:
   #   # Only show assistants that the user created or that were created externally (e.g. in Assistants playground).
   #   # privateAssistants: false # Does not work with `supportedIds` or `excludedIds`
   #   # (optional) Models that support retrieval, will default to latest known OpenAI models that support the feature
-  #   retrievalModels: ["gpt-4-turbo-preview"]
+      retrievalModels: ["gpt-4-turbo-preview,gpt-4o,gpt-4.1,gpt-4o-mini,gpt-4.1-minin"]
   #   # (optional) Assistant Capabilities available to all users. Omit the ones you wish to exclude. Defaults to list below.
-  #   capabilities: ["code_interpreter", "retrieval", "actions", "tools", "image_vision"]
-  # agents:
+      capabilities: ["code_interpreter", "retrieval", "actions", "tools", "image_vision"]
+    agents:
   #   # (optional) Default recursion depth for agents, defaults to 25
   #   recursionLimit: 50
   #   # (optional) Max recursion depth for agents, defaults to 25
   #   maxRecursionLimit: 100
   #   # (optional) Disable the builder interface for agents
-  #   disableBuilder: false
+      disableBuilder: false
   #   # (optional) Agent Capabilities available to all users. Omit the ones you wish to exclude. Defaults to list below.
-  #   capabilities: ["execute_code", "file_search", "actions", "tools"]
+      capabilities: ["execute_code", "file_search", "actions", "tools"]
   custom:
     # Groq Example
     # - name: 'groq'
@@ -329,7 +327,7 @@ endpoints:
 # # https://www.librechat.ai/docs/configuration/librechat_yaml/object_structure/assistants_endpoint
 
 # Memory configuration for user memories
-# memory:
+  memory:
 #   # (optional) Disable memory functionality
 #   disabled: false
 #   # (optional) Restrict memory keys to specific values to limit memory storage and improve consistency
@@ -338,14 +336,14 @@ endpoints:
 #   tokenLimit: 10000
 #   # (optional) Enable personalization features (defaults to true if memory is configured)
 #   # When false, users will not see the Personalization tab in settings
-#   personalize: true
+    personalize: true
 #   # Memory agent configuration - either use an existing agent by ID or define inline
-#   agent:
+    agent:
 #     # Option 1: Use existing agent by ID
 #     id: "your-memory-agent-id"
 #     # Option 2: Define agent inline
-#     # provider: "openai"
-#     # model: "gpt-4o-mini"
-#     # instructions: "You are a memory management assistant. Store and manage user information accurately."
-#     # model_parameters:
-#     #   temperature: 0.1
+        provider: "openai"
+        model: "gpt-4o-mini"
+        instructions: "You are a memory management assistant. Store and manage user information accurately."
+        model_parameters:
+          temperature: 0.1
